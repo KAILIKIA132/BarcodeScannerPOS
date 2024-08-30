@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorPrimary"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:id="@+id/back"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_margin="10dp"
+                            android:src="@drawable/ic_left_arrow" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal"
+                            android:letterSpacing="0.2"
+                            android:layout_marginTop="10dp"
+                            android:shadowColor="@color/background"
+                            android:shadowDy="+6"
+                            android:shadowRadius="4"
+                            android:text="PAYMENT"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="20dp"
+                        android:gravity="center">
+
+                        <View
+                            android:layout_width="50dp"
+                            android:layout_height="2dp"
+                            android:background="@color/white" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_horizontal"
+                        android:padding="10dp"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:textAlignment="center"
+                            android:text="KSH"
+                            android:textSize="15sp"
+                            android:layout_marginEnd="5dp"
+                            android:letterSpacing="0.2"
+                            android:shadowColor="@color/background"
+                            android:shadowDx="0"
+                            android:textColor="@color/black"
+                            android:shadowDy="+6"
+                            android:shadowRadius="4"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:textAlignment="center"
+                            android:text="500"
+                            android:id="@+id/TotalAmountPaid"
+                            android:textSize="15sp"
+                            android:letterSpacing="0.2"
+                            android:shadowColor="@color/background"
+                            android:shadowDx="0"
+                            android:layout_marginStart="5dp"
+                            android:textColor="@color/black"
+                            android:shadowDy="+6"
+                            android:shadowRadius="4"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardElevation="3dp"
+                        android:visibility="gone"
+                        android:layout_margin="5dp"
+                        android:id="@+id/MpesaCard"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardCornerRadius="6dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:orientation="vertical"
+                            android:layout_margin="5dp"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="5dp"
+                                android:text="Mpesa Payment"
+                                android:textColor="@color/colorAccent"
+                                android:textSize="14sp" />
+
+                            <View
+                                android:layout_width="60dp"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginBottom="10dp"
+                                android:background="@color/black"
+                                android:layout_height="3dp" />
+
+                            <TextView
+                                android:id="@+id/PayText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:letterSpacing="0.1"
+                                android:shadowColor="@color/background"
+                                android:shadowDx="0"
+                                android:shadowDy="+6"
+                                android:shadowRadius="4"
+                                android:text="Input customer phone number and amount to complete transaction through M-Pesa!"
+                                android:textAlignment="textStart"
+                                android:textColor="@color/black"/>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/PhoneNumber"
+                                style="@style/TextInputLayout"
+                                app:boxBackgroundColor="@color/gray"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                app:errorEnabled="true">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Customer's Phone Number"
+                                    android:inputType="phone" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/Amount"
+                                style="@style/TextInputLayout"
+                                app:boxBackgroundColor="@color/gray"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:errorEnabled="true">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Amount"
+                                    android:inputType="number" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardElevation="3dp"
+                        android:visibility="gone"
+                        android:id="@+id/CashCard"
+                        android:layout_margin="5dp"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardCornerRadius="6dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:orientation="vertical"
+                            android:layout_margin="5dp"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="5dp"
+                                android:text="Cash Payment"
+                                android:textColor="@color/colorAccent"
+                                android:textSize="14sp" />
+
+                            <View
+                                android:layout_width="60dp"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginBottom="10dp"
+                                android:background="@color/black"
+                                android:layout_height="3dp" />
+
+                            <TextView
+                                android:id="@+id/CashPayText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:letterSpacing="0.1"
+                                android:shadowColor="@color/background"
+                                android:shadowDx="0"
+                                android:shadowDy="+6"
+                                android:shadowRadius="4"
+                                android:text="Input the amount to complete transaction through Cash!"
+                                android:textAlignment="textStart"
+                                android:textColor="@color/black"/>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/CashAmount"
+                                style="@style/TextInputLayout"
+                                app:boxBackgroundColor="@color/gray"
+                                android:layout_marginTop="10dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:errorEnabled="true">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Amount"
+                                    android:inputType="number" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardElevation="3dp"
+                        android:visibility="gone"
+                        android:id="@+id/ChequeCard"
+                        android:layout_margin="5dp"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardCornerRadius="6dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:orientation="vertical"
+                            android:layout_margin="5dp"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="5dp"
+                                android:text="Cheque Payment"
+                                android:textColor="@color/colorAccent"
+                                android:textSize="14sp" />
+
+                            <View
+                                android:layout_width="60dp"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginBottom="10dp"
+                                android:background="@color/black"
+                                android:layout_height="3dp" />
+
+                            <TextView
+                                android:id="@+id/ChequePayText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:letterSpacing="0.1"
+                                android:shadowColor="@color/background"
+                                android:shadowDx="0"
+                                android:shadowDy="+6"
+                                android:shadowRadius="4"
+                                android:text="Input the cheque number and amount to complete transaction through Cheque!"
+                                android:textAlignment="textStart"
+                                android:textColor="@color/black" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/ChequeNumber"
+                                app:boxBackgroundColor="@color/gray"
+                                style="@style/TextInputLayout"
+                                android:layout_marginTop="10dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:errorEnabled="true">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Cheque Number"
+                                    android:inputType="number" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/ChequeAmount"
+                                app:boxBackgroundColor="@color/gray"
+                                style="@style/TextInputLayout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:errorEnabled="true">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Amount"
+                                    android:inputType="number" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+
+                            <RelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_marginBottom="5dp"
+                                android:id="@+id/CaptureImage"
+                                android:background="@drawable/spinner_bg2"
+                                android:layout_gravity="center_vertical"
+                                android:layout_height="55dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:orientation="vertical"
+                                    android:layout_toStartOf="@+id/CaptureImageLayout"
+                                    android:layout_height="match_parent">
+
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:text="Capture Cheque Image"
+                                        android:textSize="16sp"
+                                        android:id="@+id/ImagePreviewText"
+                                        android:layout_marginStart="10dp"
+                                        android:gravity="center_vertical"
+                                        android:textColor="?android:textColorHint"
+                                        android:layout_height="match_parent"/>
+
+                                    <ImageView
+                                        android:layout_width="match_parent"
+                                        android:visibility="gone"
+                                        android:scaleType="fitXY"
+                                        android:id="@+id/ImagePreview"
+                                        android:layout_height="match_parent"/>
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="40dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:id="@+id/CaptureImageLayout"
+                                    android:gravity="center"
+                                    android:layout_height="match_parent">
+                                    <ImageView
+                                        android:layout_width="wrap_content"
+                                        android:src="@drawable/ic_baseline_photo_camera_24"
+                                        android:layout_height="wrap_content"/>
+                                </LinearLayout>
+
+                            </RelativeLayout>
+
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardElevation="3dp"
+                        android:visibility="gone"
+                        android:id="@+id/InvoiceCard"
+                        android:layout_margin="5dp"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardCornerRadius="6dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:orientation="vertical"
+                            android:layout_margin="5dp"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="5dp"
+                                android:text="Invoice Payment"
+                                android:textColor="@color/colorAccent"
+                                android:textSize="14sp" />
+
+                            <View
+                                android:layout_width="60dp"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginBottom="10dp"
+                                android:background="@color/black"
+                                android:layout_height="3dp" />
+
+                            <TextView
+                                android:id="@+id/InvoicePayText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:letterSpacing="0.1"
+                                android:shadowColor="@color/background"
+                                android:shadowDx="0"
+                                android:shadowDy="+6"
+                                android:shadowRadius="4"
+                                android:text="Input the amount to complete transaction through Invoice!"
+                                android:textAlignment="textStart"
+                                android:textColor="@color/black"/>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/InvoiceAmount"
+                                style="@style/TextInputLayout"
+                                app:boxBackgroundColor="@color/gray"
+                                android:layout_marginTop="10dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:errorEnabled="true">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Amount"
+                                    android:inputType="number" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                </LinearLayout>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:id="@+id/DeptLayout"
+                    app:cardElevation="3dp"
+                    android:layout_margin="5dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="6dp"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:orientation="vertical"
+                        android:layout_margin="5dp"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/Code"
+                            app:boxBackgroundColor="@color/gray"
+                            style="@style/TextInputLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:errorEnabled="true">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Verification Code"
+                                android:inputType="number" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:text="Signature"
+                            android:layout_margin="5dp"
+                            android:textColor="@color/black"
+                            android:layout_height="wrap_content"/>
+
+                        <com.williamww.silkysignature.views.SignaturePad
+                            android:id="@+id/signaturePad"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            app:penColor="@android:color/black" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:gravity="end"
+                            android:layout_height="wrap_content">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:layout_width="wrap_content"
+                                android:text="Clear"
+                                android:id="@+id/Clear"
+                                app:shapeAppearance="@style/rounded"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+
+                </androidx.cardview.widget.CardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/Lipa"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:text="Submit"
+                    app:backgroundTint="@color/colorAccent"
+                    app:shapeAppearance="@style/rounded" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+
+    </RelativeLayout>
+</layout>

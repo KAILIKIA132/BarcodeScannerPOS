@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+<!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <application
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/logo"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/logo_icon"
+        android:supportsRtl="true"
+        android:theme="@style/NoActionBar"
+        tools:replace="android:icon">
+        <activity android:name=".activities.DiscountActivity"/>
+        <activity android:name=".activities.PeopleActivity" />
+        <activity android:name=".activities.StoreActivity" />
+        <activity android:name=".activities.ExpenseDetailActivity" />
+        <activity android:name=".activities.NewCustomerActivity" />
+        <activity android:name=".activities.HistoryDetail" />
+        <activity android:name=".activities.AccountActivity" />
+        <activity android:name=".activities.RouteActivity" />
+        <activity android:name=".activities.NewShopActivity" />
+        <activity android:name=".activities.ExpenditureActivity" />
+        <activity android:name=".activities.PaymentActivity" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity android:name=".activities.ShopActivity" />
+        <activity android:name=".activities.MakeSaleActivity" />
+        <activity android:name=".activities.CustomerActivity" />
+        <activity android:name=".activities.SaleActivity" />
+        <activity android:name=".activities.Splash" android:exported="true">
+
+        <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.Login" />
+        <activity android:name=".activities.MainActivity" />
+        <activity android:name=".activities.Register" />
+        <activity android:name=".activities.SaleHistory" />
+        <activity android:name=".activities.PaymentHistory" />
+        <activity android:name=".activities.DeviceListActivity" />
+        <activity android:name=".activities.TodayActivity" />
+        <activity android:name=".activities.DiscountDetail" />
+        <activity android:name="com.arodi.powergas.activities.SummaryActivity" />
+        <activity android:name="com.arodi.powergas.activities.InvoiceActivity" />
+        <activity android:name="com.arodi.powergas.activities.InvoiceDetail" />
+        <activity android:name="com.arodi.powergas.activities.ChequeActivity" />
+        <activity android:name="com.arodi.powergas.activities.ChequeDetail" />
+        <activity android:name="com.arodi.powergas.activities.SalesSummary" />
+        <activity android:name="com.arodi.powergas.activities.StockActivity" />
+        <activity android:name="com.arodi.powergas.activities.ShopActivityTwo" />
+    </application>
+
+</manifest>

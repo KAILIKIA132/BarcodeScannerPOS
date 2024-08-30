@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_customer"
+        android:icon="@drawable/ic_add_group_black"
+        android:title="New Customer" />
+
+
+    <item
+        android:id="@+id/action_shop"
+        android:icon="@drawable/ic_new_badge"
+        android:title="New Shop"/>
+
+    <item
+        android:id="@+id/action_route"
+        android:icon="@drawable/ic_placeholder"
+        android:title="Show Route"/>
+</menu>
