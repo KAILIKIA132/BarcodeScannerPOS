@@ -68,13 +68,14 @@ public class ReceiptActivity extends AppCompatActivity {
     String[] deviceAddresses = {};  // Initialize deviceAddresses as an empty array
 
     public UUID applicationUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
+double grandTotals;
     private static final int BLUETOOTH_PERMISSION_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.receipt);
+        grandTotals = getIntent().getDoubleExtra("grand_totals", 0.0);
 
         // Initialize SharedPreferences
         preferences = getSharedPreferences("YourPreferencesName", MODE_PRIVATE);
@@ -182,7 +183,7 @@ public class ReceiptActivity extends AppCompatActivity {
 
 // Add item list to the BILL
                 BILL += String.format(fmt5, "Item", "Qty", "Price", "Total") + "\n--------------------------------\n";
-                BILL += StringProductArray + "\nTOTAL: " + totalAmount + "\n";
+                BILL += StringProductArray + "\nTOTAL: " + grandTotals + "\n";
                 BILL += "================================\nPayments:\n";
 
 // Format for payment list header

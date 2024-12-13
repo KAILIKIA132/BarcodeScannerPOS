@@ -3,6 +3,7 @@ package com.arodi.powergas.activities;
 import static com.arodi.powergas.api.BaseURL.ROUTE_URL;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -130,7 +131,7 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
 
     int total_payment;
     int total_discount;
-
+float grand_totals;
     Dialog dialog;
 
     public String positive_negative_discount = "1";
@@ -147,6 +148,9 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
     SharedPreferences sharedPreferences;
 
     SweetAlertDialog sweetAlertDialog;
+
+
+    // Assuming you calculate the new total price based on the product's price and any other factor
 
 
     private PreviewView previewView;
@@ -280,13 +284,13 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
                     ProductCodeModel productCodeModel = new ProductCodeModel(
                             saleItem.getProductId(),
                             saleItem.getProductName(),
+                            saleItem.getProductPrice(),
                             saleItem.getProductCode(),
                             saleItem.getProductType(),
                             saleItem.getProductCategory(),
-                            saleItem.getProductPrice(),
                             saleItem.getProductImage(),
                             saleItem.getProductStock(),
-                            saleItem.getProductSales(),""
+                            saleItem.getProductSales(),"",""
                     );
 
                     // Proceed with payment logic based on the sale item
@@ -754,8 +758,9 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
     }
 
     // Handle calculate button logic
+
     private void handleCalculateClick() {
-        Log.e("CalculateButton", "Start.");
+        Log.d("CalculateButton", "Start.");
 
         dialogBinding.calculate.setEnabled(false);
 
@@ -767,15 +772,39 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
 
             if (product != null) {
                 try {
-                    double price = Double.parseDouble(product.getPrice());
-                    double total = price * quantity;
+                    // Get the initial price of the product
+                    double initialPrice = Double.parseDouble(product.getPrice());
 
-                    // Update total amount in TextView
+                    // Calculate the total price based on quantity
+                    double total = initialPrice * quantity;
+
+                    grand_totals= (float) total;
+
+                    // Update the total amount in the TextView (display total price)
                     if (dialogBinding.totalAmt != null) {
-                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "KES%.2f", total));
+                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "KES %.2f", total));
                     } else {
                         Log.e("CalculateButton", "Total TextView is null.");
                     }
+
+                    // Update the UI to display the initial price (can display in a separate TextView if needed)
+//                    if (dialogBinding.initialPrice != null) {
+//                        dialogBinding.initialPrice.setText(String.format(Locale.getDefault(), "Initial: KES %.2f", initialPrice));
+//                    } else {
+//                        Log.e("CalculateButton", "Initial Price TextView is null.");
+//                    }
+
+                    // Optionally update the UI field for price (display the new calculated total price)
+                    if (dialogBinding.price != null) {
+                        dialogBinding.price.setText(String.format(Locale.getDefault(), "KES %.2f", total));
+                    } else {
+                        Log.e("CalculateButton", "Price TextView is null.");
+                    }
+
+                    // Optionally update the product price with the calculated total (if necessary)
+                    product.setPrice(String.format(Locale.getDefault(), "%.2f", total));
+                    Log.d("CalculateButton", "Updated product price with total: " + product.getPrice());
+
                 } catch (NumberFormatException e) {
                     Log.e("CalculateButton", "Error parsing price", e);
                 }
@@ -788,6 +817,42 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
 
         dialogBinding.calculate.setEnabled(true);
     }
+
+
+//    private void handleCalculateClick() {
+//        Log.e("CalculateButton", "Start.");
+//
+//        dialogBinding.calculate.setEnabled(false);
+//
+//        // Retrieve quantity from EditText
+//        TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
+//        if (quantityEditText != null) {
+//            String quantityStr = quantityEditText.getText().toString();
+//            int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
+//
+//            if (product != null) {
+//                try {
+//                    double price = Double.parseDouble(product.getPrice());
+//                    double total = price * quantity;
+//
+//                    // Update total amount in TextView
+//                    if (dialogBinding.totalAmt != null) {
+//                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "KES%.2f", total));
+//                    } else {
+//                        Log.e("CalculateButton", "Total TextView is null.");
+//                    }
+//                } catch (NumberFormatException e) {
+//                    Log.e("CalculateButton", "Error parsing price", e);
+//                }
+//            } else {
+//                Log.e("CalculateButton", "Product is null.");
+//            }
+//        } else {
+//            Log.e("CalculateButton", "Quantity EditText is null.");
+//        }
+//
+//        dialogBinding.calculate.setEnabled(true);
+//    }
 
     // Camera initialization
     private void startCamera() {
@@ -1044,11 +1109,12 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
                                     dataObject.getString("type"),
                                     dataObject.getString("name"),
                                     dataObject.getString("price"),
-                                    "no_image.png", // Assuming no image in API
+                                    dataObject.getString("price"),
                                     "", // Assuming no category name in API
                                     dataObject.getString("category_id"),
                                     dataObject.getString("quantity"),
-                                    "0.0000" // Assuming no sales in API
+                                    "0.0000", ""
+                                    // Assuming no sales in API
                             );
 
                             // Save product data in SharedPreferences
@@ -1073,7 +1139,7 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
                                     Log.e("AnalyzeImage", "Dialog binding or LoadProducts TextView is null.");
                                 }
                                 if (dialogBinding != null && dialogBinding.price != null) {
-                                    dialogBinding.price.setText(product.getPrice());
+                                    dialogBinding.price.setText(product.getInitialPrice());
                                 } else {
                                     Log.e("AnalyzeImage", "Dialog binding or price TextView is null.");
                                 }
@@ -1095,7 +1161,7 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
                                 }
 
                                 // Now that product data is available, populate the sales
-                                populateSales(product);
+//                                populateSales(product);
 
                                 Log.d("getProduct", "UI updated successfully.");
                             });
@@ -1724,18 +1790,28 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
         bottomSheetDialog.show();
     }
 
+    @SuppressLint("SetTextI18n")
     public void showPaymentCode(ProductCodeModel product) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(ShopActivity.this, R.style.CustomBottomSheetDialogTheme);
         paymentBinding = DataBindingUtil.inflate(LayoutInflater.from(ShopActivity.this), R.layout.payment_dialog, null, false);
         bottomSheetDialog.setContentView(paymentBinding.getRoot());
 
         paymentBinding.cancel.setOnClickListener(view -> bottomSheetDialog.dismiss());
+        Log.d("grand_total", String.valueOf(grand_totals));
 
 //        paymentBinding.TotalPrice.setText("Ksh " + total);
-        paymentBinding.TotalPrice.setText("Ksh " + total);
-//        paymentBinding.TotalPrice.setText(String.format(Locale.getDefault(), "KES%.2f", total));
+        paymentBinding.TotalPrice.setText("Ksh " + grand_totals);
+//        paymentBinding.TotalPrice.setText(String.format(Locale.getDefault(), "KES%.2f", product.getPrice()));
 //        paymentBinding.GrandTotal.setText("Ksh " + total_payment);
-        paymentBinding.GrandTotal.setText("Ksh " + total);
+        paymentBinding.GrandTotal.setText("Ksh " + grand_totals);
+
+        Log.d("grand_total",product.getInitialPrice());
+        Log.d("grand_total",product.getPrice());
+        Log.d("grand_total",product.getId());
+        Log.d("grand_total",product.getCode());
+        Log.d("grand_total",product.getCategory());
+        Log.d("grand_total",product.getName());
+        Log.d("grand_total",product.getStock());
 
         paymentBinding.RecyclerView.setHasFixedSize(true);
         paymentBinding.RecyclerView.setLayoutManager(new GridLayoutManager(ShopActivity.this, 3));
@@ -1770,7 +1846,7 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
                     jsonObject.put("product_stock", product.getStock());
                     jsonObject.put("product_sales", product.getSales());
                     jsonObject.put("discount", "0"); // Example: Hardcoded discount
-                    jsonObject.put("total", total_payment);  // Example: Using the total payment
+                    jsonObject.put("total", grand_totals);  // Example: Using the total payment
                     jsonArray.put(jsonObject);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1786,6 +1862,7 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
                 // Passing the ProductCodeModel object to the PaymentActivity
                 Intent intent = new Intent(ShopActivity.this, PaymentActivity.class);
                 intent.putExtra("product_data", product);  // 'product' is the ProductCodeModel object passed as parameter
+                intent.putExtra("grand_totals", grand_totals);  // Pass the grand_totals value
                 startActivity(intent);
 
 
@@ -2194,7 +2271,7 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
                 product.getType(),
                 product.getCategory(),
                 "1", // Assuming quantity is 1
-                product.getPrice(),
+                product.getInitialPrice(),
                 product.getImage(),
                 product.getStock(),
                 product.getSales(),
@@ -2224,8 +2301,8 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
         }
 
         // Update the UI with the totals
-        binding.TotalDue.setText("Kshs " + total_payment);
-        binding.TotalAmount.setText("Kshs " + total_payment);
+        binding.TotalDue.setText("Kshs " + product.getPrice());
+        binding.TotalAmount.setText("Kshs " + product.getPrice());
 
         // Update the UI based on whether there are items in the saleModel list
         if (saleModel.isEmpty()) {

@@ -90,7 +90,7 @@ public class PaymentActivity extends AppCompatActivity {
     String fmt2 = "%6s %6s %6s\n";
 
     Bitmap bitmap;
-
+    String grandTotals;
     public UUID applicationUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     @Override
@@ -99,7 +99,8 @@ public class PaymentActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
         binding = DataBindingUtil.setContentView(this, R.layout.activity_payment);
 
-
+        grandTotals = String.valueOf(getIntent().getDoubleExtra("grand_totals", 0.0));
+Log.d("Grand_Totals",grandTotals);
         // Retrieve the ProductCodeModel object
         product = getIntent().getParcelableExtra("product_data");
         if (product != null) {
@@ -118,9 +119,9 @@ public class PaymentActivity extends AppCompatActivity {
 
             // Set the price in the TotalAmountPaid TextView
             binding.TotalAmountPaid.setText(price);
-            binding.TotalAmountPaid.invalidate();  // Force UI update if needed
+//            binding.TotalAmountPaid.invalidate(grandTotals);  // Force UI update if needed
             // Set the price in the TotalAmountPaid TextView
-            binding.TotalAmountPaid.setText(price);
+            binding.TotalAmountPaid.setText(grandTotals);
         }
         else {
             Toast.makeText(this, "No product data received", Toast.LENGTH_SHORT).show();
@@ -613,7 +614,7 @@ public class PaymentActivity extends AppCompatActivity {
             sale.put("warehouse_id", 1);
             sale.put("note", "Customer requested gift wrapping.");
             sale.put("staff_note", "Handle with care.");
-            sale.put("total", 100.00);
+            sale.put("total", grandTotals);
             sale.put("product_discount", 10.00);
             sale.put("order_discount_id", JSONObject.NULL);
             sale.put("order_discount", 5.00);
@@ -646,7 +647,7 @@ public class PaymentActivity extends AppCompatActivity {
             product1.put("tax", 2.00);
             product1.put("discount", 5.00);
             product1.put("item_discount", 3.00);
-            product1.put("subtotal", 60.00);
+            product1.put("subtotal", grandTotals);
             product1.put("serial_no", "SN123456");
             product1.put("real_unit_price", 30.00);
             products.put(product1);
@@ -723,6 +724,7 @@ public class PaymentActivity extends AppCompatActivity {
 
                             Intent intent = new Intent(PaymentActivity.this, ReceiptActivity.class);
                             intent.putExtra("product_data", product);  // Ensure 'product' implements Serializable/Parcelable
+                            intent.putExtra("grand_totals", grandTotals);  // Pass the grand_totals value
                             startActivity(intent);
                             dialog.dismiss(); // Dismiss dialog safely
 

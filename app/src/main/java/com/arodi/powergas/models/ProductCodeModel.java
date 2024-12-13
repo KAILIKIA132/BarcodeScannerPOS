@@ -1,6 +1,5 @@
 package com.arodi.powergas.models;
 
-import java.io.Serializable;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,7 +8,8 @@ public class ProductCodeModel implements Parcelable {
     private String code;
     private String type;
     private String name;
-    private String price;
+    private String price;        // Latest price
+    private String initialPrice; // Initial price
     private String image;
     private String category;
     private String category_id;
@@ -17,13 +17,14 @@ public class ProductCodeModel implements Parcelable {
     private String sales;
 
     // Constructor
-    public ProductCodeModel(String id, String code, String type, String name, String price, String image,
-                            String category, String category_id, String stock, String sales) {
+    public ProductCodeModel(String id, String code, String type, String name, String price, String initialPrice,
+                            String image, String category, String category_id, String stock, String sales) {
         this.id = id;
         this.code = code;
         this.type = type;
         this.name = name;
         this.price = price;
+        this.initialPrice = initialPrice;  // Store the initial price
         this.image = image;
         this.category = category;
         this.category_id = category_id;
@@ -37,6 +38,7 @@ public class ProductCodeModel implements Parcelable {
         type = in.readString();
         name = in.readString();
         price = in.readString();
+        initialPrice = in.readString();  // Read initial price from Parcel
         image = in.readString();
         category = in.readString();
         category_id = in.readString();
@@ -68,6 +70,7 @@ public class ProductCodeModel implements Parcelable {
         dest.writeString(type);
         dest.writeString(name);
         dest.writeString(price);
+        dest.writeString(initialPrice);  // Write initial price to Parcel
         dest.writeString(image);
         dest.writeString(category);
         dest.writeString(category_id);
@@ -94,6 +97,10 @@ public class ProductCodeModel implements Parcelable {
 
     public String getPrice() {
         return price;
+    }
+
+    public String getInitialPrice() {
+        return initialPrice;  // Get initial price
     }
 
     public String getImage() {
@@ -135,6 +142,10 @@ public class ProductCodeModel implements Parcelable {
 
     public void setPrice(String price) {
         this.price = price;
+    }
+
+    public void setInitialPrice(String initialPrice) {
+        this.initialPrice = initialPrice;  // Set initial price
     }
 
     public void setImage(String image) {
