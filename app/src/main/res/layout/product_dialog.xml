@@ -3,287 +3,274 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
     </data>
 
-    <LinearLayout
-        android:id="@+id/bottomSheet"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:clickable="true"
-        app:behavior_hideable="true"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
         <LinearLayout
+            android:id="@+id/bottomSheet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/background"
-            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="10dp"
-            app:elevation="1dp">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_margin="10dp"
-                    android:id="@+id/cancel"
-                    android:src="@drawable/ic_cancel_black_24dp"
-                    android:layout_height="wrap_content"/>
-            </RelativeLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:text="Scan Product"
-                android:textSize="15sp"
-                android:letterSpacing="0.3"
-                android:shadowColor="@color/background"
-                android:shadowDx="0"
-                android:shadowDy="+6"
-                android:shadowRadius="4"
-                android:textStyle="bold"
-                android:textAllCaps="true"
-                android:textColor="@color/black"
-                android:layout_height="wrap_content"/>
-
-            <View
-                android:layout_width="100dp"
-                android:layout_height="3dp"
-                android:layout_margin="10dp"
-                android:background="@color/colorPrimary" />
-
-<!--            <androidx.camera.view.PreviewView-->
-<!--                android:id="@+id/previewView"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="0dp"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent" />-->
-
-            <androidx.camera.view.PreviewView
-                android:id="@+id/previewView"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            />
-
-
+            android:clickable="true"
+            app:behavior_hideable="true"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background"
+                android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:layout_marginBottom="15dp"
-                android:background="@drawable/spinner_bg">
+                android:padding="10dp"
+                app:elevation="1dp">
 
-                <TextView
-                    android:id="@+id/serialNo"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/spinner_bg"
-                    android:gravity="center_vertical"
-                    android:paddingStart="10dp"
-                    android:text="Serial Number" />
-
-                <TextView
-                    android:id="@+id/serial"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:drawableEnd="@drawable/ic_baseline_arrow_drop_down_24"
-                    android:hint="Serial Number"
-                    android:gravity="center_vertical"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:textColorHint="@color/black"
-                    android:textColor="@color/black"
-                    android:textSize="15sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:orientation="vertical"
-                android:layout_marginBottom="15dp"
-                android:background="@drawable/spinner_bg">
-
-                <TextView
-                    android:id="@+id/LoadProducts"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/spinner_bg"
-                    android:gravity="center_vertical"
-                    android:paddingStart="10dp"
-                    android:text="Loading Products..." />
-
-                <TextView
-                    android:id="@+id/Product"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:drawableEnd="@drawable/ic_baseline_arrow_drop_down_24"
-                    android:hint="Select Product"
-                    android:gravity="center_vertical"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:textColorHint="@color/black"
-                    android:textColor="@color/black"
-                    android:textSize="15sp" />
-
-            </LinearLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                style="@style/TextInputLayout"
-                app:errorEnabled="true"
-                android:id="@+id/Quantity"
-                android:layout_height="wrap_content">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:hint="Quantity"
-                    android:inputType="number"
-                    android:layout_height="wrap_content"/>
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:weightSum="1"
-                android:visibility="gone"
-                android:id="@+id/DiscountLayout"
-                android:gravity="center_vertical"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="0.3"
-                    android:layout_marginEnd="5dp"
                     android:layout_height="wrap_content">
 
-                    <CheckBox
+                    <ImageView
                         android:layout_width="wrap_content"
-                        android:text="Apply Discount"
-                        android:id="@+id/ApplyDiscount"
+                        android:layout_alignParentEnd="true"
+                        android:layout_margin="10dp"
+                        android:id="@+id/cancel"
+                        android:src="@drawable/ic_cancel_black_24dp"
                         android:layout_height="wrap_content"/>
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="Scan Product"
+                    android:textSize="15sp"
+                    android:letterSpacing="0.3"
+                    android:shadowColor="@color/background"
+                    android:shadowDx="0"
+                    android:shadowDy="+6"
+                    android:shadowRadius="4"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
+                    android:textColor="@color/black"
+                    android:layout_height="wrap_content"/>
+
+                <View
+                    android:layout_width="100dp"
+                    android:layout_height="3dp"
+                    android:layout_margin="10dp"
+                    android:background="@color/colorPrimary" />
+
+                <androidx.camera.view.PreviewView
+                    android:id="@+id/previewView"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="15dp"
+                    android:background="@drawable/spinner_bg">
+
+                    <TextView
+                        android:id="@+id/serialNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/spinner_bg"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
+                        android:text="Serial Number" />
+
+                    <TextView
+                        android:id="@+id/serial"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:drawableEnd="@drawable/ic_baseline_arrow_drop_down_24"
+                        android:hint="Serial Number"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:textColorHint="@color/black"
+                        android:textColor="@color/black"
+                        android:textSize="15sp" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="15dp"
+                    android:background="@drawable/spinner_bg">
+
+                    <TextView
+                        android:id="@+id/LoadProducts"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/spinner_bg"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
+                        android:text="Loading name..." />
+
+                    <TextView
+                        android:id="@+id/Product"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:drawableEnd="@drawable/ic_baseline_arrow_drop_down_24"
+                        android:hint="Select Product"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:textColorHint="@color/black"
+                        android:textColor="@color/black"
+                        android:textSize="15sp" />
+                </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="0.7"
-                    android:visibility="gone"
-                    android:id="@+id/InputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="15dp"
+                    android:background="@drawable/spinner_bg">
+
+                    <TextView
+                        android:id="@+id/price"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/spinner_bg"
+                        android:gravity="center_vertical"
+                        android:paddingStart="10dp"
+                        android:text="Loading price..." />
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    style="@style/TextInputLayout"
+                    app:errorEnabled="true"
+                    android:id="@+id/Quantity"
                     android:layout_height="wrap_content">
 
-                    <com.google.android.material.textfield.TextInputLayout
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:hint="Quantity"
+                        android:inputType="number"
+                        android:layout_height="wrap_content"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:weightSum="1"
+                    android:visibility="gone"
+                    android:id="@+id/DiscountLayout"
+                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_weight="0.5"
-                        style="@style/TextInputLayout"
-                        app:errorEnabled="true"
-                        android:id="@+id/Discount"
+                        android:layout_weight="0.3"
+                        android:layout_marginEnd="5dp"
                         android:layout_height="wrap_content">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:layout_width="match_parent"
-                            android:hint="Discount"
-                            android:drawableStart="@drawable/ic_add_black_24dp"
-                            android:inputType="number"
-                            android:drawablePadding="5dp"
+                        <CheckBox
+                            android:layout_width="wrap_content"
+                            android:text="Apply Discount"
+                            android:id="@+id/ApplyDiscount"
                             android:layout_height="wrap_content"/>
+                    </LinearLayout>
 
-                    </com.google.android.material.textfield.TextInputLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="0.7"
+                        android:visibility="gone"
+                        android:id="@+id/InputLayout"
+                        android:layout_height="wrap_content">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_width="wrap_content"
-                        android:text="+"
-                        android:id="@+id/PosNegButton"
-                        android:layout_marginStart="5dp"
-                        android:layout_height="wrap_content"/>
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="0.5"
+                            style="@style/TextInputLayout"
+                            app:errorEnabled="true"
+                            android:id="@+id/Discount"
+                            android:layout_height="wrap_content">
 
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:layout_width="match_parent"
+                                android:hint="Discount"
+                                android:drawableStart="@drawable/ic_add_black_24dp"
+                                android:inputType="number"
+                                android:drawablePadding="5dp"
+                                android:layout_height="wrap_content"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:layout_width="wrap_content"
+                            android:text="+"
+                            android:id="@+id/PosNegButton"
+                            android:layout_marginStart="5dp"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="Total:"
+                        android:textSize="18sp"
+                        android:letterSpacing="0.3"
+                        android:shadowColor="@color/background"
+                        android:shadowDx="0"
+                        android:shadowDy="+6"
+                        android:shadowRadius="4"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:textColor="@color/black"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text=""
+                        android:id="@+id/total_amt"
+                        android:textSize="18sp"
+                        android:letterSpacing="0.3"
+                        android:shadowColor="@color/background"
+                        android:shadowDx="0"
+                        android:shadowDy="+6"
+                        android:shadowRadius="4"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:textColor="@color/black"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/calculate"
+                    app:backgroundTint="@color/colorAccent"
+                    android:layout_marginTop="20dp"
+                    android:layout_width="wrap_content"
+                    app:shapeAppearance="@style/rounded"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Calculate" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/confirmButton"
+                    app:backgroundTint="@color/colorAccent"
+                    android:layout_marginTop="20dp"
+                    android:layout_width="match_parent"
+                    app:shapeAppearance="@style/rounded"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Submit" />
 
             </LinearLayout>
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:text="Product X Quantity"-->
-<!--                android:textSize="18sp"-->
-<!--                android:letterSpacing="0.3"-->
-<!--                android:shadowColor="@color/background"-->
-<!--                android:shadowDx="0"-->
-<!--                android:shadowDy="+6"-->
-<!--                android:shadowRadius="4"-->
-<!--                android:textStyle="bold"-->
-<!--                android:textAllCaps="true"-->
-<!--                android:textColor="@color/black"-->
-<!--                android:layout_height="wrap_content"/>-->
-
-            <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-android:padding="10dp"                >
-            <TextView
-                android:layout_width="wrap_content"
-                android:text="Total:"
-                android:textSize="18sp"
-                android:letterSpacing="0.3"
-                android:shadowColor="@color/background"
-                android:shadowDx="0"
-                android:shadowDy="+6"
-                android:shadowRadius="4"
-                android:textStyle="bold"
-                android:textAllCaps="true"
-                android:textColor="@color/black"
-                android:layout_height="wrap_content"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:text=""
-        android:id="@+id/total_amt"
-        android:textSize="18sp"
-        android:letterSpacing="0.3"
-        android:shadowColor="@color/background"
-        android:shadowDx="0"
-        android:shadowDy="+6"
-        android:shadowRadius="4"
-        android:textStyle="bold"
-        android:textAllCaps="true"
-        android:textColor="@color/black"
-        android:layout_height="wrap_content"/>
-
-</LinearLayout>
-
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/calculate"
-                app:backgroundTint="@color/colorAccent"
-                android:layout_marginTop="20dp"
-                android:layout_width="wrap_content"
-                app:shapeAppearance="@style/rounded"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Calculate" />
-
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/confirmButton"
-                app:backgroundTint="@color/colorAccent"
-                android:layout_marginTop="20dp"
-                android:layout_width="match_parent"
-                app:shapeAppearance="@style/rounded"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Submit" />
-
         </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 </layout>

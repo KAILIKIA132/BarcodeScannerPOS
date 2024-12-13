@@ -6,6 +6,8 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -74,6 +76,7 @@
         <activity android:name="com.arodi.powergas.activities.SalesSummary" />
         <activity android:name="com.arodi.powergas.activities.StockActivity" />
         <activity android:name="com.arodi.powergas.activities.ShopActivityTwo" />
+        <activity android:name="com.arodi.powergas.activities.ReceiptActivity" />
     </application>
 
 </manifest>

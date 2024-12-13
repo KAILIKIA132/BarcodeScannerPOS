@@ -312,7 +312,7 @@ public class MakeSaleActivity extends AppCompatActivity implements LocationListe
             public void onResponse(Call call, Response response) {
                 try {
                     JSONObject jsonObject = new JSONObject(response.body().string());
-//                    Log.d("Api_response", jsonObject.toString());
+                    Log.d("Api_response", jsonObject.toString());
 
                     if (jsonObject.getInt("status") == 200) {
                         JSONArray customersArray = jsonObject.getJSONArray("data");

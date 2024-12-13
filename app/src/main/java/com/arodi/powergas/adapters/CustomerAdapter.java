@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SortedList;
 
 import com.arodi.powergas.activities.ShopActivity;
+import com.arodi.powergas.activities.ShopActivityThree;
 import com.arodi.powergas.activities.ShopActivityTwo;
 import com.arodi.powergas.models.CustomerModel;
 import com.arodi.powergas.R;
@@ -84,35 +85,39 @@ public class CustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         Picasso.with(context).load(model.getLogo()).into(holder.imageView);
 
         holder.next.setOnClickListener(view -> {
-            if (position == 0) {
-                SharedPreferences sharedPreferences = context.getSharedPreferences("CUSTOMER_SHOPPING_DATA", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("CUSTOMER_ID", model.getCustomer_id());
-                editor.putString("CUSTOMER_NAME", model.getShop_name());
-                editor.putString("LAT", model.getLat());
-                editor.putString("LNG", model.getLng());
-                editor.putString("TOWN_ID", model.getTown_id());
-                editor.putString("SHOP_ID", model.getShop_id());
-                editor.putString("SAVED_INSTANCE", "CUSTOMER_LIST");
-                editor.putString("CUSTOMER_PHONE", model.getPhone());
-                editor.putString("SELECTED_CUSTOMER_NAME", model.getName());
-                editor.apply();
+            if (position >= 0) {
+//            if (position == 0) {
+                // Create an intent to start ShopActivity
+//                Intent intent = new Intent(context, ShopActivityTwo.class);
+//                Intent intent = new Intent(context, ShopActivityThree.class);
+                Intent intent = new Intent(context, ShopActivity.class);
 
+                // Put customer data in the intent as extras
+                intent.putExtra("CUSTOMER_ID", model.getCustomer_id());
+                intent.putExtra("LAT", model.getLat());
+                intent.putExtra("LNG", model.getLng());
+                intent.putExtra("TOWN_ID", model.getTown_id());
+                intent.putExtra("SHOP_ID", model.getShop_id());
+                intent.putExtra("CUSTOMER_EMAIL", model.getEmail());
+                intent.putExtra("CUSTOMER_PHONE", model.getPhone());
+                intent.putExtra("SELECTED_CUSTOMER_NAME", model.getName());
+                intent.putExtra("SELECTED_CUSTOMER_GROUP_NAME", model.getCustomer_group_name());
+                intent.putExtra("SELECTED_CUSTOMER_COUNTY_NAME", model.getCounty_name());
+                intent.putExtra("SELECTED_CUSTOMER_GROUP_ID", model.getCustomer_group_id());
 
-
-                // Log the data
-                Log.d("SharedPreferences", "CUSTOMER_ID: " + model.getCustomer_id());
-                Log.d("SharedPreferences", "CUSTOMER_NAME: " + model.getShop_name());
-                Log.d("SharedPreferences", "LAT: " + model.getLat());
-                Log.d("SharedPreferences", "LNG: " + model.getLng());
-                Log.d("SharedPreferences", "TOWN_ID: " + model.getTown_id());
-                Log.d("SharedPreferences", "SHOP_ID: " + model.getShop_id());
-                Log.d("SharedPreferences", "SAVED_INSTANCE: CUSTOMER_LIST");
-                Log.d("SharedPreferences", "CUSTOMER_PHONE: " + model.getPhone());
-                Log.d("SharedPreferences", "SELECTED_CUSTOMER_NAME: " + model.getName());
-
-
-                context.startActivity(new Intent(context, ShopActivity.class));
+                // Log the data for debugging
+                Log.d("IntentExtras", "CUSTOMER_ID: " + model.getCustomer_id());
+                Log.d("IntentExtras", "CUSTOMER_NAME: " + model.getName());
+                Log.d("IntentExtras", "LAT: " + model.getLat());
+                Log.d("IntentExtras", "LNG: " + model.getLng());
+                Log.d("IntentExtras", "TOWN_ID: " + model.getTown_id());
+                Log.d("IntentExtras", "SHOP_ID: " + model.getShop_id());
+                Log.d("IntentExtras", "CUSTOMER_PHONE: " + model.getPhone());
+                Log.d("IntentExtras", "SELECTED_CUSTOMER_GROUP_NAME: " + model.getCustomer_group_name());
+                Log.d("IntentExtras", "SELECTED_CUSTOMER_COUNTY_NAME: " + model.getCounty_name());
+                Log.d("IntentExtras", "SELECTED_CUSTOMER_GROUP_ID: " + model.getCustomer_group_id());
+                // Start the next activity
+                context.startActivity(intent);
             } else {
                 Toast.makeText(context, "Please attend to the first customer first.", Toast.LENGTH_LONG).show();
             }

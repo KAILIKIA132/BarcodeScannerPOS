@@ -16,6 +16,7 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
@@ -34,6 +35,8 @@ import com.arodi.powergas.api.BaseURL;
 import com.arodi.powergas.database.Database;
 import com.arodi.powergas.databinding.ActivityPaymentBinding;
 import com.arodi.powergas.models.CityModel;
+import com.arodi.powergas.models.PaymentModel;
+import com.arodi.powergas.models.ProductCodeModel;
 import com.arodi.powergas.models.ProductHistory;
 import com.arodi.powergas.session.SessionManager;
 
@@ -48,6 +51,7 @@ import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -69,7 +73,7 @@ public class PaymentActivity extends AppCompatActivity {
     SweetAlertDialog dialog;
     HashMap<String, String> user;
     HashMap<String, String> hash_map = new HashMap<>();
-
+    ProductCodeModel product;
     String BILL = "";
     public String isInvoice = "0";
     public String isCheque = "0";
@@ -94,10 +98,41 @@ public class PaymentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
         binding = DataBindingUtil.setContentView(this, R.layout.activity_payment);
+
+
+        // Retrieve the ProductCodeModel object
+        product = getIntent().getParcelableExtra("product_data");
+        if (product != null) {
+            // Check if price is empty and set default value if needed
+            if (TextUtils.isEmpty(product.getPrice())) {
+                product.setPrice("0"); // Set default value if price is empty
+            }
+
+            // Now set the price
+
+            String price = product.getPrice();
+            Log.d("PaymentActivity1", "Product ID: " + product.getId());
+            Log.d("PaymentActivity1", "Product Name: " + product.getName());
+            Log.d("PaymentActivity1", "Product Code: " + product.getCode());
+            Log.d("PaymentActivity1", "Product Price: " + product.getPrice());
+
+            // Set the price in the TotalAmountPaid TextView
+            binding.TotalAmountPaid.setText(price);
+            binding.TotalAmountPaid.invalidate();  // Force UI update if needed
+            // Set the price in the TotalAmountPaid TextView
+            binding.TotalAmountPaid.setText(price);
+        }
+        else {
+            Toast.makeText(this, "No product data received", Toast.LENGTH_SHORT).show();
+        }
+
+
+
         user = new SessionManager(PaymentActivity.this).getLoginDetails();
 
         preferences = getSharedPreferences("PAYMENT_SELECTED", Context.MODE_PRIVATE);
         if (preferences.contains("PAYMENT_AMOUNT")) {
+
             binding.TotalAmountPaid.setText(preferences.getString("PAYMENT_AMOUNT", ""));
 
             try {
@@ -257,6 +292,9 @@ public class PaymentActivity extends AppCompatActivity {
                 if (binding.MpesaCard.getVisibility() == View.VISIBLE) {
                     sendStkPush();
                 } else {
+
+//                    Toast.makeText(PaymentActivity.this, "No Payment Type1", Toast.LENGTH_SHORT).show();
+
                     checkPaymentType();
                 }
 
@@ -321,6 +359,7 @@ public class PaymentActivity extends AppCompatActivity {
 
     }
 
+
     public void confirmPayment(String CheckoutRequestID) {
         dialog.setTitle("Confirming Payment");
 
@@ -358,6 +397,8 @@ public class PaymentActivity extends AppCompatActivity {
                             if (jsonObject.has("resultCode")) {
                                 if (jsonObject.getString("resultCode").equals("0")) {
                                     checkPaymentType();
+                                    Toast.makeText(PaymentActivity.this, "No Payment Type2", Toast.LENGTH_SHORT).show();
+
                                 } else {
                                     dialog.changeAlertType(SweetAlertDialog.ERROR_TYPE);
                                     dialog.setTitle(jsonObject.getString("resultDesc"));
@@ -392,37 +433,40 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     public void checkPaymentType() {
+        submitSale();
+
+
         //only cash
-        if (checkCash(hash_map) && !checkMpesa(hash_map) && !checkCheque(hash_map) && !checkInvoice(hash_map)) {
-            submitSale("", "");
-        }
-        //only mpesa
-        if (!checkCash(hash_map) && checkMpesa(hash_map) && !checkCheque(hash_map) && !checkInvoice(hash_map)) {
-            submitSale("", "");
-        }
-        //only cheque
-        if (!checkCash(hash_map) && !checkMpesa(hash_map) && checkCheque(hash_map) && !checkInvoice(hash_map)) {
-            confirmCode();
-        }
-        //only invoice
-        if (!checkCash(hash_map) && !checkMpesa(hash_map) && !checkCheque(hash_map) && checkInvoice(hash_map)) {
-            confirmCode();
-        }
-
-        //only cash and mpesa
-        if (checkCash(hash_map) && checkMpesa(hash_map) && !checkCheque(hash_map) && !checkInvoice(hash_map)) {
-            submitSale("", "");
-        }
-
-        //only cheque and invoice
-        if (!checkCash(hash_map) && !checkMpesa(hash_map) && checkCheque(hash_map) && checkInvoice(hash_map)) {
-            confirmCode();
-        }
-
-        //if either cash or mpesa and cheque or invoice output partial
-        if ((checkCash(hash_map) || checkMpesa(hash_map)) && (checkCheque(hash_map) || checkInvoice(hash_map))) {
-            confirmCode();
-        }
+//        if (checkCash(hash_map) && !checkMpesa(hash_map) && !checkCheque(hash_map) && !checkInvoice(hash_map)) {
+//            submitSale();
+//        }
+//        //only mpesa
+//        if (!checkCash(hash_map) && checkMpesa(hash_map) && !checkCheque(hash_map) && !checkInvoice(hash_map)) {
+//            submitSale();
+//        }
+//        //only cheque
+//        if (!checkCash(hash_map) && !checkMpesa(hash_map) && checkCheque(hash_map) && !checkInvoice(hash_map)) {
+//            confirmCode();
+//        }
+//        //only invoice
+//        if (!checkCash(hash_map) && !checkMpesa(hash_map) && !checkCheque(hash_map) && checkInvoice(hash_map)) {
+//            confirmCode();
+//        }
+//
+//        //only cash and mpesa
+//        if (checkCash(hash_map) && checkMpesa(hash_map) && !checkCheque(hash_map) && !checkInvoice(hash_map)) {
+//            submitSale();
+//        }
+//
+//        //only cheque and invoice
+//        if (!checkCash(hash_map) && !checkMpesa(hash_map) && checkCheque(hash_map) && checkInvoice(hash_map)) {
+//            confirmCode();
+//        }
+//
+//        //if either cash or mpesa and cheque or invoice output partial
+//        if ((checkCash(hash_map) || checkMpesa(hash_map)) && (checkCheque(hash_map) || checkInvoice(hash_map))) {
+//            confirmCode();
+//        }
 
     }
 
@@ -513,7 +557,9 @@ public class PaymentActivity extends AppCompatActivity {
                         JSONObject object = new JSONObject(response.body().string());
                         System.out.println("jjfjfhfjdfjfjf" + object);
                         if (object.getString("success").equals("1")) {
-                            submitSale(object.getString("image_url"), object.getString("cheque_image"));
+//                            Toast.makeText(PaymentActivity.this, "No Payment Type", Toast.LENGTH_SHORT).show();
+
+                            submitSale();
                         } else {
                             Toast.makeText(PaymentActivity.this, object.getString("message"), Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
@@ -532,227 +578,314 @@ public class PaymentActivity extends AppCompatActivity {
 
     }
 
-    public void submitSale(String signature, String cheque_image) {
-        String payment_status_selected = "";
 
-        JSONArray jsonArray = new JSONArray();
-        JSONArray array = new JSONArray();
-        JSONObject jsonObject = new JSONObject();
-        StringBuilder sb = new StringBuilder();
+
+
+        // OkHttpClient instance
+
+        // Function to send the sale data via POST request
+
+    public void submitSale() {
+        String API_URL = "https://techsavanna.technology/summit-pos/mobileApi/api/productsApi.php";
 
         try {
-            if (binding.MpesaCard.getVisibility() == View.VISIBLE) {
-                JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("paid_by", "Mpesa Payment");
-                jsonObject1.put("amount", binding.Amount.getEditText().getText().toString().trim());
-                jsonObject1.put("cheque_no", "NULL");
-                jsonObject1.put("type", "received");
-                jsonArray.put(jsonObject1);
-                hash_map.put("Mpesa", "Mpesa Payment");
-                sb.append(String.format(fmt2, new Object[]{"Mpesa Payment", binding.Amount.getEditText().getText().toString().trim(), "received"}));
-            }
+            // Get today's date in the format yyyy-MM-dd
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String currentDate = sdf.format(new Date());
+            Log.d("product",product.getName());
+            Log.d("product",product.getCode());
+            Log.d("product",product.getPrice());
+            Log.d("product",product.getId());
+            Log.d("product",currentDate);
 
-            if (binding.CashCard.getVisibility() == View.VISIBLE) {
-                JSONObject jsonObject2 = new JSONObject();
-                jsonObject2.put("paid_by", "Cash Payment");
-                jsonObject2.put("amount", binding.CashAmount.getEditText().getText().toString().trim());
-                jsonObject2.put("cheque_no", "NULL");
-                jsonObject2.put("type", "received");
-                jsonArray.put(jsonObject2);
-                hash_map.put("Cash", "Cash Payment");
-                sb.append(String.format(fmt2, new Object[]{"Cash Payment", binding.CashAmount.getEditText().getText().toString().trim(), "received"}));
-            }
+            // Build the JSON object
+            JSONObject sale = new JSONObject();
+            sale.put("date", currentDate);
+            sale.put("reference_no", "REF123456");//what is reference_no
+            sale.put("customer_id", 1);
+            sale.put("customer", "John Doe");
+            sale.put("biller_id", 1);
+            sale.put("biller", "Store Name");
+            sale.put("chef_id", 2);
+            sale.put("chef", "Chef Name");
+            sale.put("cashier_id", 3);
+            sale.put("cashier", "Cashier Name");
+            sale.put("warehouse_id", 1);
+            sale.put("note", "Customer requested gift wrapping.");
+            sale.put("staff_note", "Handle with care.");
+            sale.put("total", 100.00);
+            sale.put("product_discount", 10.00);
+            sale.put("order_discount_id", JSONObject.NULL);
+            sale.put("order_discount", 5.00);
+            sale.put("total_discount", 15.00);
+            sale.put("product_tax", 16.00);
+            sale.put("order_tax_id", JSONObject.NULL);
+            sale.put("order_tax", 2.00);
+            sale.put("total_tax", 18.00);
+            sale.put("shipping", 5.00);
+            sale.put("grand_total", 115.00);
+            sale.put("total_items", 3);
+            sale.put("sale_status", "completed");
+            sale.put("payment_status", "paid");
+            sale.put("payment_term", "Immediate");
 
-            if (binding.ChequeCard.getVisibility() == View.VISIBLE) {
-                JSONObject jsonObject3 = new JSONObject();
-                jsonObject3.put("paid_by", "Cheque Payment");
-                jsonObject3.put("amount", binding.ChequeAmount.getEditText().getText().toString().trim());
-                jsonObject3.put("cheque_no", binding.ChequeNumber.getEditText().getText().toString().trim());
-                jsonObject3.put("type", "unconfirmed");
-                jsonArray.put(jsonObject3);
-                hash_map.put("Cheque", "Cheque Payment");
-                isCheque = "1";
-            }
+            // Products array
+            JSONArray products = new JSONArray();
+            JSONObject product1 = new JSONObject();
+            product1.put("product_id", product.getId());
+            product1.put("product_code", product.getCode());
+            product1.put("product_name", product.getName());
+            product1.put("product_type", product.getType());
+            product1.put("option_id", JSONObject.NULL);
+            product1.put("net_unit_price", product.getPrice());
+            product1.put("unit_price", product.getPrice());
+            product1.put("quantity", 1);
+            product1.put("warehouse_id", 1);
+            product1.put("item_tax", 8.00);
+            product1.put("tax_rate_id", 1);
+            product1.put("tax", 2.00);
+            product1.put("discount", 5.00);
+            product1.put("item_discount", 3.00);
+            product1.put("subtotal", 60.00);
+            product1.put("serial_no", "SN123456");
+            product1.put("real_unit_price", 30.00);
+            products.put(product1);
 
-            if (binding.InvoiceCard.getVisibility() == View.VISIBLE) {
-                JSONObject jsonObject4 = new JSONObject();
-                jsonObject4.put("paid_by", "Invoice Payment");
-                jsonObject4.put("amount", binding.InvoiceAmount.getEditText().getText().toString().trim());
-                jsonObject4.put("cheque_no", "NULL");
-                jsonObject4.put("type", "unconfirmed");
-                jsonArray.put(jsonObject4);
-                hash_map.put("Invoice", "Invoice Payment");
-                isInvoice = "1";
-            }
+            sale.put("products", products);
 
-            jsonObject.put("items", jsonArray);
-            array.put(jsonObject);
+            // Payment array
+            JSONArray payments = new JSONArray();
+            JSONObject payment1 = new JSONObject();
+            payment1.put("date", currentDate);
+            payment1.put("reference_no", "PAY123456");
+            payment1.put("amount", product.getPrice());
+            payment1.put("paid_by", "cash");
+            payment1.put("cheque_no", JSONObject.NULL);
+            payment1.put("cc_no", "4111111111111111");
+            payment1.put("cc_holder", "John Doe");
+            payment1.put("cc_month", "12");
+            payment1.put("cc_year", "2025");
+            payment1.put("cc_type", "Visa");
+            payment1.put("cc_cvv2", "123");
+            payment1.put("created_by", "admin");
+            payment1.put("type", "sale");
+            payment1.put("note", "Paid in full");
+            payment1.put("pos_paid", 0.00);
+            payment1.put("pos_balance", 0.00);
+            payments.put(payment1);
 
-            StringPaymentArray = String.valueOf(sb);
+            sale.put("payment", payments);
 
-            System.out.println("hfhvjhvhvhvfgg" + removeFirstandLast(array.toString()));
+            // Log the payload before sending it
+            Log.d("SubmitSalePayload", sale.toString());
+
+            // Send the POST request
+            post(API_URL, sale.toString());
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-        //only cash
-        if (checkCash(hash_map) && !checkMpesa(hash_map) && !checkCheque(hash_map) && !checkInvoice(hash_map)) {
-            payment_status_selected = "paid";
-        }
-        //only mpesa
-        if (!checkCash(hash_map) && checkMpesa(hash_map) && !checkCheque(hash_map) && !checkInvoice(hash_map)) {
-            payment_status_selected = "paid";
-        }
-        //only cheque
-        if (!checkCash(hash_map) && !checkMpesa(hash_map) && checkCheque(hash_map) && !checkInvoice(hash_map)) {
-            payment_status_selected = "unpaid";
-        }
-        //only invoice
-        if (!checkCash(hash_map) && !checkMpesa(hash_map) && !checkCheque(hash_map) && checkInvoice(hash_map)) {
-            payment_status_selected = "unpaid";
-        }
-
-        //only cash and mpesa
-        if (checkCash(hash_map) && checkMpesa(hash_map) && !checkCheque(hash_map) && !checkInvoice(hash_map)) {
-            payment_status_selected = "paid";
-        }
-
-        //only cheque and invoice
-        if (!checkCash(hash_map) && !checkMpesa(hash_map) && checkCheque(hash_map) && checkInvoice(hash_map)) {
-            payment_status_selected = "unpaid";
-        }
-
-        //if either cash or mpesa and cheque or invoice output partial
-        if ((checkCash(hash_map) || checkMpesa(hash_map)) && (checkCheque(hash_map) || checkInvoice(hash_map))) {
-            payment_status_selected = "partial";
-        }
-
-
-        System.out.println("hhhuddydgdhdh" + array);
-        System.out.println("payment status " + payment_status_selected);
-        String finalPayment_status_selected = payment_status_selected;
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
-                .build();
-
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("discount", "0")
-                .addFormDataPart("invoice", isInvoice)
-                .addFormDataPart("invoice_id", "")
-                .addFormDataPart("cheque_id", "")
-                .addFormDataPart("image", cheque_image)
-                .addFormDataPart("cheque", isCheque)
-                .addFormDataPart("discount_id", preferences.getString("DISCOUNT_ID", ""))
-                .addFormDataPart("json", preferences.getString("PRODUCT_LIST", ""))
-                .addFormDataPart("customer_id", preferences.getString("CUSTOMER_ID", ""))
-                .addFormDataPart("distributor_id", user.get(SessionManager.KEY_DISTRIBUTOR_ID))
-                .addFormDataPart("town_id", preferences.getString("TOWN_ID", ""))
-                .addFormDataPart("salesman_id", user.get(SessionManager.KEY_SALESMAN_ID))
-                .addFormDataPart("paid_by", preferences.getString("PAYMENT_METHOD", ""))
-                .addFormDataPart("vehicle_id", user.get(SessionManager.KEY_VEHICLE_ID))
-                .addFormDataPart("payment_status", payment_status_selected)
-                .addFormDataPart("shop_id", preferences.getString("SHOP_ID", ""))
-                .addFormDataPart("total", preferences.getString("TOTAL", ""))
-                .addFormDataPart("payments", removeFirstandLast(array.toString()))
-                .addFormDataPart("signature", signature)
-                .build();
-
-        Request request = new Request.Builder()
-                .url(BaseURL.ROUTE_URL + "addSale")
-                .post(requestBody)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(() -> {
-                    dialog.dismiss();
-                    Toast.makeText(PaymentActivity.this, "No Connection to host", Toast.LENGTH_SHORT).show();
-                    System.out.println("errorrr" + e.toString());
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) {
-                runOnUiThread(() -> {
-                    try {
-                        JSONObject jsonObject = new JSONObject(response.body().string());
-                        System.out.println("jsonObjectiiiii" + jsonObject);
-                        if (jsonObject.getString("success").equals("1")) {
-                            dialog.dismiss();
-                            new Database(PaymentActivity.this).clear_customer_sales(preferences.getString("CUSTOMER_ID", ""));
-
-                            if (finalPayment_status_selected.equals("paid")) {
-                                new AlertDialog.Builder(PaymentActivity.this)
-                                        .setTitle("SALE ADDED SUCCESSFULLY")
-                                        .setCancelable(false)
-                                        .setMessage("GENERATE RECEIPT")
-                                        .setPositiveButton("GENERATE", (dialogInterface, i) -> {
-
-                                            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-                                            if (mBluetoothAdapter == null) {
-                                                Toast.makeText(PaymentActivity.this, "Cant connect to printer", Toast.LENGTH_LONG).show();
-                                            } else if (!mBluetoothAdapter.isEnabled()) {
-                                                startActivityForResult(new Intent("android.bluetooth.adapter.action.REQUEST_ENABLE"), 2);
-                                            } else {
-                                                ListPairedDevices();
-                                                startActivityForResult(new Intent(PaymentActivity.this, DeviceListActivity.class), 1);
-                                            }
-                                        })
-                                        .setNegativeButton("CANCEL", (dialogInterface, i) -> {
-                                            dialogInterface.dismiss();
-                                            goBackToSales();
-                                        }).show();
-
-                            } else {
-                                goBackToSales();
-                                Toast.makeText(PaymentActivity.this, "SALE ADDED SUCCESSFULLY", Toast.LENGTH_LONG).show();
-                            }
-
-                        } else if(jsonObject.getString("success").equals("12")){
-                            new Database(PaymentActivity.this).clear_customer_sales(preferences.getString("CUSTOMER_ID", ""));
-                            dialog.changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
-                            dialog.setTitle("Invoice sale added successfully, Please contact system admin for approval.");
-                            dialog.setConfirmClickListener(sweetAlertDialog -> {
-                                sweetAlertDialog.dismiss();
-                                Intent intent = new Intent(PaymentActivity.this, MainActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-
-                            });
-                        } else if(jsonObject.getString("success").equals("17")){
-                            new Database(PaymentActivity.this).clear_customer_sales(preferences.getString("CUSTOMER_ID", ""));
-                            dialog.changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
-                            dialog.setTitle("Cheque sale added successfully, Please contact system admin for approval.");
-                            dialog.setConfirmClickListener(sweetAlertDialog -> {
-                                sweetAlertDialog.dismiss();
-                                Intent intent = new Intent(PaymentActivity.this, MainActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-
-                            });
-                        }else {
-                            dialog.dismiss();
-                            Toast.makeText(PaymentActivity.this, jsonObject.getString("message"), Toast.LENGTH_LONG).show();
-                        }
-
-                    } catch (Exception e) {
-                        dialog.dismiss();
-                        Toast.makeText(PaymentActivity.this, "An error occurred", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-
-
-                });
-
-            }
-        });
     }
+
+
+        // Helper function to send the POST request
+        private void post(String url, String json) {
+
+            OkHttpClient client = new OkHttpClient();
+
+            // MediaType for JSON data
+           final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+            RequestBody body = RequestBody.create(JSON, json);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace(); // Handle request failure
+                    Log.d("Exception",e.toString());
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        String responseBody = response.body().string();
+                        dialog.dismiss();
+
+                        // Show Toast on the main thread
+                        runOnUiThread(() -> {
+                            Toast.makeText(PaymentActivity.this, "SALE ADDED SUCCESSFULLY", Toast.LENGTH_LONG).show();
+
+
+                            Intent intent = new Intent(PaymentActivity.this, ReceiptActivity.class);
+                            intent.putExtra("product_data", product);  // Ensure 'product' implements Serializable/Parcelable
+                            startActivity(intent);
+                            dialog.dismiss(); // Dismiss dialog safely
+
+
+                        });
+
+                        System.out.println("Response: " + responseBody);
+                        Log.d("response", responseBody);
+                    } else {
+                        dialog.dismiss();
+
+                        // You might want to handle error responses similarly
+                        // Show Toast on the main thread for failure case too
+                        runOnUiThread(() -> {
+                            Toast.makeText(PaymentActivity.this, "Request failed: " + response.code(), Toast.LENGTH_LONG).show();
+                        });
+
+                        System.out.println("Request failed: " + response.code());
+                        Log.d("response failed", String.valueOf(response.code()));
+                    }
+                }
+            });
+        }
+
+
+
+//    public void submitSale(String signature, String cheque_image) {
+//        OkHttpClient client = new OkHttpClient().newBuilder()
+//                .connectTimeout(60, TimeUnit.SECONDS)
+//                .readTimeout(60, TimeUnit.SECONDS)
+//                .writeTimeout(60, TimeUnit.SECONDS)
+//                .build();
+//
+//        // Construct the sale JSON object
+//        JSONObject saleJson = new JSONObject();
+//        try {
+//            saleJson.put("date", "2024-09-30");
+//            saleJson.put("reference_no", "REF123456");
+//            saleJson.put("customer_id", 1);
+//            saleJson.put("customer", "John Doe");
+//            saleJson.put("biller_id", 1);
+//            saleJson.put("biller", "Store Name");
+//            saleJson.put("chef_id", 2);
+//            saleJson.put("chef", "Chef Name");
+//            saleJson.put("cashier_id", 3);
+//            saleJson.put("cashier", "Cashier Name");
+//            saleJson.put("warehouse_id", 1);
+//            saleJson.put("note", "Customer requested gift wrapping.");
+//            saleJson.put("staff_note", "Handle with care.");
+//            saleJson.put("total", 100.00);
+//            saleJson.put("product_discount", 10.00);
+//            saleJson.put("order_discount_id", JSONObject.NULL);
+//            saleJson.put("order_discount", 5.00);
+//            saleJson.put("total_discount", 15.00);
+//            saleJson.put("product_tax", 16.00);
+//            saleJson.put("order_tax_id", JSONObject.NULL);
+//            saleJson.put("order_tax", 2.00);
+//            saleJson.put("total_tax", 18.00);
+//            saleJson.put("shipping", 5.00);
+//            saleJson.put("grand_total", 115.00);
+//            saleJson.put("total_items", 3);
+//            saleJson.put("sale_status", "completed");
+//            saleJson.put("payment_status", "paid");
+//            saleJson.put("payment_term", "Immediate");
+//
+//            // Construct the products array
+//            JSONArray productsArray = new JSONArray();
+//            JSONObject product = new JSONObject();
+//            product.put("product_id", 1);
+//            product.put("product_code", "PROD001");
+//            product.put("product_name", "Product Name 1");
+//            product.put("product_type", "type1");
+//            product.put("option_id", JSONObject.NULL);
+//            product.put("net_unit_price", 30.00);
+//            product.put("unit_price", 35.00);
+//            product.put("quantity", 2);
+//            product.put("warehouse_id", 1);
+//            product.put("item_tax", 8.00);
+//            product.put("tax_rate_id", 1);
+//            product.put("tax", 2.00);
+//            product.put("discount", 5.00);
+//            product.put("item_discount", 3.00);
+//            product.put("subtotal", 60.00);
+//            product.put("serial_no", "SN123456");
+//            product.put("real_unit_price", 30.00);
+//            productsArray.put(product);
+//
+//            // Add products array to sale JSON
+//            saleJson.put("products", productsArray);
+//
+//            // Construct the payment array
+//            JSONArray paymentsArray = new JSONArray();
+//            JSONObject payment = new JSONObject();
+//            payment.put("date", "2024-09-30");
+//            payment.put("reference_no", "PAY123456");
+//            payment.put("amount", 115.00);
+//            payment.put("paid_by", "credit_card");
+//            payment.put("cheque_no", JSONObject.NULL);
+//            payment.put("cc_no", "4111111111111111");
+//            payment.put("cc_holder", "John Doe");
+//            payment.put("cc_month", "12");
+//            payment.put("cc_year", "2025");
+//            payment.put("cc_type", "Visa");
+//            payment.put("cc_cvv2", "123");
+//            payment.put("created_by", "admin");
+//            payment.put("type", "sale");
+//            payment.put("note", "Paid in full");
+//            payment.put("pos_paid", 115.00);
+//            payment.put("pos_balance", 0.00);
+//            paymentsArray.put(payment);
+//
+//            // Add payment array to sale JSON
+//            saleJson.put("payment", paymentsArray);
+//
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        RequestBody requestBody = new MultipartBody.Builder()
+//                .setType(MultipartBody.FORM)
+//                .addFormDataPart("json", saleJson.toString())  // Add the JSON payload
+//                .addFormDataPart("image", cheque_image)
+//                .addFormDataPart("signature", signature)
+//                .build();
+//
+//        Request request = new Request.Builder()
+//                .url(BaseURL.ROUTE_URL + "productsApi.php")
+//                .post(requestBody)
+//                .build();
+//
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                runOnUiThread(() -> {
+//                    dialog.dismiss();
+//                    Toast.makeText(PaymentActivity.this, "No Connection to host", Toast.LENGTH_SHORT).show();
+//                    System.out.println("error: " + e.toString());
+//                });
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) {
+//                runOnUiThread(() -> {
+//                    try {
+//                        JSONObject responseJson = new JSONObject(response.body().string());
+//                        if (responseJson.getString("success").equals("1")) {
+//                            dialog.dismiss();
+//                            // Handle sale added successfully
+//                            Toast.makeText(PaymentActivity.this, "SALE ADDED SUCCESSFULLY", Toast.LENGTH_LONG).show();
+//                        } else {
+//                            dialog.dismiss();
+//                            Toast.makeText(PaymentActivity.this, responseJson.getString("message"), Toast.LENGTH_LONG).show();
+//
+//                        }
+//                    } catch (Exception e) {
+//                        dialog.dismiss();
+//                        Toast.makeText(PaymentActivity.this, "An error occurred", Toast.LENGTH_LONG).show();
+//                        e.printStackTrace();
+//                    }
+//                });
+//            }
+//        });
+//    }
 
     public void goBackToSales() {
         SharedPreferences sharedPreferences = getSharedPreferences("CUSTOMER_SHOPPING_DATA", Context.MODE_PRIVATE);

@@ -18,6 +18,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -68,6 +69,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
@@ -110,11 +112,18 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
 //    ArrayList<SaleModel> saleModel = new ArrayList<>();
     ArrayList<SaleModelCode> saleModel = new ArrayList<>();
 //    SaleAdapter saleAdapter;
+
+    double total;
     SaleAdapterCode saleAdapter;
-    public String product_id, name, price, product_code, is_kitchen;
+    public String product_id, name, price, product_code, is_kitchen,barcodeRead;
     public String portion1, portion1qty, portion2, portion2qty, portion3, portion3qty, portion4, portion4qty, portion5, portion5qty;
 
     HashMap<String, String> user;
+
+    ProductCodeModel product;
+
+    private List<ProductCodeModel> productList = new ArrayList<>();
+
     int day;
     int final_price;
     int sub_total;
@@ -155,6 +164,36 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
 
 
 
+        // Retrieve data from the intent
+        Intent intent = getIntent();
+
+        // Use getStringExtra() to get the data
+        String customerId = intent.getStringExtra("CUSTOMER_ID");
+        String lat = intent.getStringExtra("LAT");
+        String lng = intent.getStringExtra("LNG");
+        String townId = intent.getStringExtra("TOWN_ID");
+        String shopId = intent.getStringExtra("SHOP_ID");
+        String customerEmail = intent.getStringExtra("CUSTOMER_EMAIL");
+        String customerPhone = intent.getStringExtra("CUSTOMER_PHONE");
+        String customerName = intent.getStringExtra("SELECTED_CUSTOMER_NAME");
+        String customerGroupName = intent.getStringExtra("SELECTED_CUSTOMER_GROUP_NAME");
+        String customerCountyName = intent.getStringExtra("SELECTED_CUSTOMER_COUNTY_NAME");
+        String customerGroupId = intent.getStringExtra("SELECTED_CUSTOMER_GROUP_ID");
+
+        // Example: Use the retrieved values (you can display them or process them)
+        Log.d("ShopActivity", "Customer ID: " + customerId);
+        Log.d("ShopActivity", "Customer Name: " + customerName);
+        Log.d("ShopActivity", "Latitude: " + lat);
+        Log.d("ShopActivity", "Longitude: " + lng);
+        Log.d("ShopActivity", "Town ID: " + townId);
+        Log.d("ShopActivity", "Shop ID: " + shopId);
+        Log.d("ShopActivity", "Customer Phone: " + customerPhone);
+        Log.d("ShopActivity", "Customer Group Name: " + customerGroupName);
+        Log.d("ShopActivity", "Customer County Name: " + customerCountyName);
+        Log.d("ShopActivity", "Customer Group ID: " + customerGroupId);
+
+
+
 
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000);
@@ -185,31 +224,119 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
                 binding.NotAttending.setChecked(false);
                 Toast.makeText(ShopActivity.this, "Please move closer to the customer shop", Toast.LENGTH_SHORT).show();
             }
+
+
+
+
+//            dialogBinding.calculate.setOnClickListener(view -> {
+//
+//            });
+
         });
+//        binding.Payment.setOnClickListener(view -> {
+//            if (saleModel != null && !saleModel.isEmpty()) {
+//                sweetAlertDialog = new SweetAlertDialog(ShopActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+//                sweetAlertDialog.setTitle("Please Wait...");
+//                sweetAlertDialog.setCancelable(false);
+//                sweetAlertDialog.show();
+//
+//                ProductCodeModel product = productList.isEmpty() ? null : productList.get(0); // Get the first product safely
+//                if (product != null) {
+//                    if (total_discount == 0) {
+//                        makeSale();
+//                        showPaymentCode(product);
+//                        Log.d("Total Discount is", "0");
+//                    } else {
+//                        submitDiscount();
+//                        Log.d("Total Discount is", "submit discount");
+//                        showPaymentCode(product);
+//                    }
+//                } else {
+//                    Toast.makeText(ShopActivity.this, "No product available!", Toast.LENGTH_SHORT).show();
+//                }
+//            } else {
+//                if (!productList.isEmpty()) {
+//                    ProductCodeModel product = productList.get(0); // Get the first product safely
+//                    showPaymentCode(product);
+//                } else {
+//                    Toast.makeText(ShopActivity.this, "No sale item available!", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
 
         binding.Payment.setOnClickListener(view -> {
-            if (saleModel.size() != 0) {
+            // Check if saleModel is not null and has items
+            if (saleModel != null && !saleModel.isEmpty()) {
                 sweetAlertDialog = new SweetAlertDialog(ShopActivity.this, SweetAlertDialog.PROGRESS_TYPE);
                 sweetAlertDialog.setTitle("Please Wait...");
                 sweetAlertDialog.setCancelable(false);
-                sweetAlertDialog.show();
-                if (total_discount == 0) {
-                    makeSale();
-                    showPaymentCode();
-                    Log.d("Total Discount is","0");
+//                sweetAlertDialog.show();
+
+                // Get the first sale from the saleModel list
+                SaleModelCode saleItem = saleModel.get(0); // Assuming you're working with the first sale item
+
+                if (saleItem != null) {
+                    // Create a new ProductCodeModel from SaleModelCode
+                    ProductCodeModel productCodeModel = new ProductCodeModel(
+                            saleItem.getProductId(),
+                            saleItem.getProductName(),
+                            saleItem.getProductCode(),
+                            saleItem.getProductType(),
+                            saleItem.getProductCategory(),
+                            saleItem.getProductPrice(),
+                            saleItem.getProductImage(),
+                            saleItem.getProductStock(),
+                            saleItem.getProductSales(),""
+                    );
+
+                    // Proceed with payment logic based on the sale item
+                    if (total_discount == 0) {
+                        makeSale();  // Replace with your logic for making a sale
+                        showPaymentCode(productCodeModel);  // Pass the ProductCodeModel
+                        Log.d("Total Discount is", "0");
+                    } else {
+                        submitDiscount();  // Replace with your logic for submitting a discount
+                        Log.d("Total Discount is", "submit discount");
+                        showPaymentCode(productCodeModel);  // Pass the ProductCodeModel
+                    }
                 } else {
-                    submitDiscount();
-                    Log.d("Total Discount is","submit discount");
-                    showPaymentCode();
-
-
+                    // If saleItem is null, show error message
+                    sweetAlertDialog.dismiss();
+                    Toast.makeText(ShopActivity.this, "No sale item available!", Toast.LENGTH_SHORT).show();
                 }
-
             } else {
-                showPaymentCode();
+                // If saleModel is empty, show a toast message indicating no sale item
+                sweetAlertDialog.dismiss();
                 Toast.makeText(ShopActivity.this, "No sale item available!", Toast.LENGTH_SHORT).show();
             }
         });
+
+
+//        binding.Payment.setOnClickListener(view -> {
+//            if (saleModel.size() != 0) {
+//                sweetAlertDialog = new SweetAlertDialog(ShopActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+//                sweetAlertDialog.setTitle("Please Wait...");
+//                sweetAlertDialog.setCancelable(false);
+//                sweetAlertDialog.show();
+//                ProductCodeModel product = productList.get(0); // Get the first product (replace with appropriate index or logic)
+//
+//                if (total_discount == 0) {
+//                    makeSale();
+//                    showPaymentCode(product);
+//                    Log.d("Total Discount is","0");
+//                } else {
+//                    submitDiscount();
+//                    Log.d("Total Discount is","submit discount");
+//                    showPaymentCode(product);
+//
+//                }
+//
+//            } else {
+//                ProductCodeModel product = productList.get(0); // Get the first product (replace with appropriate index or logic)
+//                showPaymentCode(product);
+//                Toast.makeText(ShopActivity.this, "No sale item available!", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
         binding.RecyclerView.setHasFixedSize(true);
         binding.RecyclerView.setLayoutManager(new LinearLayoutManager(ShopActivity.this));
@@ -272,7 +399,7 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
     @Override
     protected void onResume() {
         super.onResume();
-        populateSales();
+//        populateSales(product);
 
         if (NetworkState.getInstance(ShopActivity.this).isConnected()) {
             if (!isLocationEnabled(ShopActivity.this)) {
@@ -386,162 +513,10 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
 
 
 
-    private void getProductUsingCode() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
-        Log.d("getProduct", "Day of Week: " + dayOfWeek);
-
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
-                .build();
-
-        Request request = new Request.Builder()
-                .url(ROUTE_URL + "productsApi.php?code=353204665151180")
-                .method("GET", null)
-                .build();
-
-        Log.d("Api_request", request.toString());
-        Log.d("getProduct", "Sending request...");
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(() -> Log.e("getProduct", "Request failed: " + e.toString()));
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.d("getProduct", "Response received: " + response.toString());
-
-                if (!response.isSuccessful()) {
-                    Log.e("getProduct", "Unexpected response code: " + response.code());
-                    throw new IOException("Unexpected code " + response);
-                }
-
-                String responseBody = response.body().string();
-                Log.d("getProduct", "Response Body: " + responseBody);
-
-                if (responseBody.isEmpty()) {
-                    Log.w("getProduct", "Empty response body");
-                    return;
-                }
-
-                new Thread(() -> {
-                    try {
-                        Log.d("getProduct", "Processing response...");
-                        JSONObject jsonResponse = new JSONObject(responseBody);
-                        JSONArray jsonArray = jsonResponse.getJSONArray("data");
-
-                        if (jsonArray.length() > 0) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(0);
-                            Log.d("getProduct", "Processing product...");
-
-                            ProductCodeModel product = new ProductCodeModel(
-                                    jsonObject.getString("id"),
-                                    jsonObject.getString("code"),
-                                    jsonObject.getString("type"),
-                                    jsonObject.getString("name"),
-                                    jsonObject.getString("price"),
-                                    jsonObject.optString("image", "no_image.png"),
-                                    jsonObject.getString("category"),
-                                    jsonObject.getString("category_id"),
-                                    jsonObject.getString("stock"),
-                                    jsonObject.optString("sales", "0.0000")
-                            );
-
-                            Log.d("getProduct", "Product added: " + product.getName());
-                            Log.d("getProduct", "Product added: " + product.getPrice());
-
-
-
-                            // Save product data in SharedPreferences
-                            SharedPreferences sharedPreferences = getSharedPreferences("ProductPrefs", MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("product_id", product.getId());
-                            editor.putString("product_code", product.getCode());
-                            editor.putString("product_type", product.getType());
-                            editor.putString("product_name", product.getName());
-                            editor.putString("product_price", product.getPrice());
-                            editor.putString("product_image", product.getImage());
-                            editor.putString("product_category", product.getCategory());
-                            editor.putString("product_stock", product.getStock());
-                            editor.putString("product_sales", product.getSales());
-
-                            editor.apply();
-
-                            runOnUiThread(() -> {
-                                Log.d("getProduct", "Updating UI with product");
-                            });
-                        } else {
-                            Log.w("getProduct", "No product found");
-                        }
-
-                    } catch (Exception e) {
-                        Log.e("getProduct", "Error processing response: ", e);
-                    }
-                }).start();
-            }
-        });
-
-        populateSales();
-
-    }
 
 
 
 
-
-
-
-
-//    private void fetchProductQuantity() {
-//        OkHttpClient client = new OkHttpClient().newBuilder()
-//                .connectTimeout(60, TimeUnit.SECONDS)
-//                .readTimeout(60, TimeUnit.SECONDS)
-//                .writeTimeout(60, TimeUnit.SECONDS)
-//                .build();
-//
-//        Request request = new Request.Builder()
-//                .url(BaseURL.SERVER_URL + "products/productsEndpoint.php?action=fetch_product_quantity&vehicle_id=" + user.get(SessionManager.KEY_VEHICLE_ID) + "&distributor_id=" + user.get(SessionManager.KEY_DISTRIBUTOR_ID))
-//                .method("GET", null)
-//                .build();
-//        client.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                runOnUiThread(() -> System.out.println("errorrr" + e.toString()));
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) {
-//                runOnUiThread(() -> {
-//                    try {
-//                        JSONArray jsonArray = new JSONArray(response.body().string());
-//                        System.out.println("jsonObjuyrtygtyectdfdfdiighgghhddddiii" + jsonArray);
-//
-//                        new Database(ShopActivity.this.getBaseContext()).clear_product_quantity();
-//
-//                        for (int i = 0; i < jsonArray.length(); i++) {
-//                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-//                            ProductQuantity model = new ProductQuantity(
-//                                    jsonObject.getString("product_id"),
-//                                    jsonObject.getString("quantity"));
-//
-//                            new Database(getBaseContext()).create_product_quantity(model);
-//                        }
-//
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//
-//
-//                });
-//
-//            }
-//        });
-//    }
 
 
     public static boolean isLocationEnabled(Context context) {
@@ -605,30 +580,6 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, ShopActivity.this);
     }
-//
-//    @Override
-//    public void onRequestPermissionsResult(
-//            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        switch (requestCode) {
-//            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-//                // If request is cancelled, the result arrays are empty.
-//                if (grantResults.length > 0
-//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    System.out.println("permission was granted");
-//                    try {
-//                        LocationServices.FusedLocationApi.requestLocationUpdates(
-//                                mGoogleApiClient, mLocationRequest, this);
-//                    } catch (SecurityException e) {
-//                        System.out.println("SecurityException" + e);
-//                    }
-//                } else {
-//                    System.out.println("permission denied");
-//                }
-//                return;
-//            }
-//        }
-//    }
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -641,51 +592,233 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
     }
 
 
+//    public void showDialog() {
+//        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(ShopActivity.this, R.style.CustomBottomSheetDialogTheme);
+//        dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(ShopActivity.this), R.layout.product_dialog, null, false);
+//        bottomSheetDialog.setContentView(dialogBinding.getRoot());
+//
+//        previewView = dialogBinding.previewView;  // Assuming the product_dialog layout contains a PreviewView with this ID
+//        barcodeScanner = BarcodeScanning.getClient();
+//
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+//            startCamera();
+//        } else {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+//        }
+//
+//        bottomSheetDialog.show();
+//    }
+//
+////    private void startCamera() {
+////        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+////
+////        cameraProviderFuture.addListener(() -> {
+////            try {
+////                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+////                bindPreview(cameraProvider);
+////            } catch (ExecutionException | InterruptedException e) {
+////                e.printStackTrace();
+////            }
+////        }, ContextCompat.getMainExecutor(this));
+////    }
+//private void startCamera() {
+//    ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+//
+//    cameraProviderFuture.addListener(() -> {
+//        try {
+//            Log.d("CameraX", "Camera provider future completed");
+//            ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+//            bindPreview(cameraProvider);
+//        } catch (ExecutionException | InterruptedException e) {
+//            Log.e("CameraX", "Error while starting camera: ", e);
+//        }
+//    }, ContextCompat.getMainExecutor(this));
+//}
+//
+//    private void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
+//        // Preview use case
+//        Preview preview = new Preview.Builder()
+//                .setTargetResolution(new Size(1280, 720)) // Set resolution
+//                .build();
+//
+//        // Image analysis use case
+//        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+//                .setTargetResolution(new Size(1280, 720)) // Set resolution
+//                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+//                .build();
+//        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), this::analyzeImage);
+//
+//        CameraSelector cameraSelector = new CameraSelector.Builder()
+//                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+//                .build();
+//
+//        try {
+//            cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
+//            preview.setSurfaceProvider(previewView.getSurfaceProvider());
+//            Log.d("CameraX", "Successfully bound preview and image analysis.");
+//        } catch (Exception e) {
+//            Log.e("CameraX", "Error binding use cases: " + e.getMessage());
+//        }
+//    }
+//
+//
+////    private void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
+////        Preview preview = new Preview.Builder().build();
+////        CameraSelector cameraSelector = new CameraSelector.Builder()
+////                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+////                .build();
+////
+////        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+////                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+////                .build();
+////
+////        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), this::analyzeImage);
+////
+////        Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
+////        preview.setSurfaceProvider(previewView.getSurfaceProvider());
+////    }
+//
+//    @OptIn(markerClass = ExperimentalGetImage.class)
+//    private void analyzeImage(@NonNull ImageProxy imageProxy) {
+//        if (imageProxy.getImage() == null) {
+//            imageProxy.close();
+//            return;
+//        }
+//
+//        InputImage image = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
+//
+//        if (!isBarcodeProcessed) {
+//            barcodeScanner.process(image)
+//                    .addOnSuccessListener(barcodes -> {
+//                        if (!barcodes.isEmpty()) {
+//                            Barcode barcode = barcodes.get(0);
+//                            String rawValue = barcode.getRawValue();
+//
+//                            Log.d("Barcode", "Barcode detected: " + rawValue);
+//                            barcodeRead=rawValue;
+//                            getProductUsingCode();
+//                            isBarcodeProcessed = true;
+//
+//
+//                            if (dialogBinding != null && dialogBinding.serialNo != null) {
+//                                dialogBinding.serialNo.setText(rawValue);
+//                            } else {
+//                                Log.e("AnalyzeImage", "Dialog binding or serialNo TextView is null.");
+//                            }
+//
+//                        }
+//                    })
+//                    .addOnFailureListener(e -> {
+//                        Log.e("Barcode", "Barcode scanning failed", e);
+//                        isBarcodeProcessed = false;
+//                    })
+//                    .addOnCompleteListener(task -> {
+//                        imageProxy.close();
+//                    });
+//        } else {
+//            imageProxy.close();
+//        }
+//    }
 
     public void showDialog() {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(ShopActivity.this, R.style.CustomBottomSheetDialogTheme);
         dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(ShopActivity.this), R.layout.product_dialog, null, false);
         bottomSheetDialog.setContentView(dialogBinding.getRoot());
 
-        previewView = dialogBinding.previewView;  // Assuming the product_dialog layout contains a PreviewView with this ID
+        // Initialize camera preview and barcode scanner
+        previewView = dialogBinding.previewView;
         barcodeScanner = BarcodeScanning.getClient();
 
+        // Request camera permission if not granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             startCamera();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         }
 
+        // Set OnClickListener for calculate button
+        dialogBinding.calculate.setOnClickListener(view -> {
+            Log.d("CalculateButton", "Calculate button clicked");
+            handleCalculateClick();
+        });
+        dialogBinding.confirmButton.setOnClickListener(view -> {
+            Log.d("CalculateButton", "Calculate button clicked");
+            populateSales(product);
+            bottomSheetDialog.dismiss();
+//            handleConfirmButtonClick(bottomSheetDialog);
+
+        });
+
+
         bottomSheetDialog.show();
     }
 
+    // Handle calculate button logic
+    private void handleCalculateClick() {
+        Log.e("CalculateButton", "Start.");
+
+        dialogBinding.calculate.setEnabled(false);
+
+        // Retrieve quantity from EditText
+        TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
+        if (quantityEditText != null) {
+            String quantityStr = quantityEditText.getText().toString();
+            int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
+
+            if (product != null) {
+                try {
+                    double price = Double.parseDouble(product.getPrice());
+                    double total = price * quantity;
+
+                    // Update total amount in TextView
+                    if (dialogBinding.totalAmt != null) {
+                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "KES%.2f", total));
+                    } else {
+                        Log.e("CalculateButton", "Total TextView is null.");
+                    }
+                } catch (NumberFormatException e) {
+                    Log.e("CalculateButton", "Error parsing price", e);
+                }
+            } else {
+                Log.e("CalculateButton", "Product is null.");
+            }
+        } else {
+            Log.e("CalculateButton", "Quantity EditText is null.");
+        }
+
+        dialogBinding.calculate.setEnabled(true);
+    }
+
+    // Camera initialization
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
-
         cameraProviderFuture.addListener(() -> {
             try {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindPreview(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
+                Log.e("CameraX", "Error starting camera: ", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
 
     private void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
-        Preview preview = new Preview.Builder().build();
-        CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                .build();
-
+        Preview preview = new Preview.Builder().setTargetResolution(new Size(1280, 720)).build();
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .setTargetResolution(new Size(1280, 720))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
-
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), this::analyzeImage);
 
-        Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
-        preview.setSurfaceProvider(previewView.getSurfaceProvider());
+        CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
+
+        try {
+            cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
+            preview.setSurfaceProvider(previewView.getSurfaceProvider());
+            Log.d("CameraX", "Camera and preview bound successfully.");
+        } catch (Exception e) {
+            Log.e("CameraX", "Error binding camera: ", e);
+        }
     }
 
     @OptIn(markerClass = ExperimentalGetImage.class)
@@ -696,36 +829,531 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
         }
 
         InputImage image = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
-
         if (!isBarcodeProcessed) {
             barcodeScanner.process(image)
                     .addOnSuccessListener(barcodes -> {
                         if (!barcodes.isEmpty()) {
                             Barcode barcode = barcodes.get(0);
                             String rawValue = barcode.getRawValue();
+
+                            Log.d("Barcode", "Detected barcode: " + rawValue);
+                            barcodeRead = rawValue;
                             getProductUsingCode();
-                            Log.d("Barcode", "Barcode detected: " + rawValue);
                             isBarcodeProcessed = true;
 
-                            TextView serialNoTextView = findViewById(R.id.serialNo);
-//                            serialNoTextView.setText(rawValue);
-
-
+                            if (dialogBinding.serialNo != null) {
+                                dialogBinding.serialNo.setText(rawValue);
+                            } else {
+                                Log.e("AnalyzeImage", "SerialNo TextView is null.");
+                            }
                         }
                     })
-                    .addOnFailureListener(e -> {
-                        Log.e("Barcode", "Barcode scanning failed", e);
-                        isBarcodeProcessed = false;
-                    })
-                    .addOnCompleteListener(task -> {
-                        imageProxy.close();
-                    });
+                    .addOnFailureListener(e -> Log.e("Barcode", "Barcode scanning failed", e))
+                    .addOnCompleteListener(task -> imageProxy.close());
         } else {
             imageProxy.close();
         }
     }
 
 
+//    private void getProductUsingCode() {
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(new Date());
+//        String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+//        Log.d("getProduct", "Day of Week: " + dayOfWeek);
+//
+//        OkHttpClient client = new OkHttpClient().newBuilder()
+//                .connectTimeout(60, TimeUnit.SECONDS)
+//                .readTimeout(60, TimeUnit.SECONDS)
+//                .writeTimeout(60, TimeUnit.SECONDS)
+//                .build();
+//        Log.d("barcodeRead", barcodeRead);
+//
+//        Request request = new Request.Builder()
+////                .url(ROUTE_URL + "productsApi.php?code=" + barcodeRead)
+//                .url(ROUTE_URL + "productsApi.php?code=XATU034927")
+//                .method("GET", null)
+//                .build();
+//
+//        Log.d("Api_request", request.toString());
+//        Log.d("getProduct", "Sending request...");
+//
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                runOnUiThread(() -> Log.e("getProduct", "Request failed: " + e.toString()));
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException {
+//                Log.d("getProduct", "Response received: " + response.toString());
+//
+//                if (!response.isSuccessful()) {
+//                    Log.e("getProduct", "Unexpected response code: " + response.code());
+//                    throw new IOException("Unexpected code " + response);
+//                }
+//
+//                String responseBody = response.body().string();
+//                Log.d("getProduct", "Response Body: " + responseBody);
+//
+//                if (responseBody.isEmpty()) {
+//                    Log.w("getProduct", "Empty response body");
+//                    return;
+//                }
+//
+//                new Thread(() -> {
+//                    try {
+//                        Log.d("getProduct", "Processing response...");
+//                        JSONObject jsonResponse = new JSONObject(responseBody);
+//                        boolean status = jsonResponse.getBoolean("status");
+//
+//                        if (status) {
+//                            JSONObject dataObject = jsonResponse.getJSONObject("data");
+//                            product = new ProductCodeModel(
+//                                    dataObject.getString("id"),
+//                                    dataObject.getString("code"),
+//                                    dataObject.getString("type"),
+//                                    dataObject.getString("name"),
+//                                    dataObject.getString("price"),
+//                                    "no_image.png", // Assuming no image in API
+//                                    "", // Assuming no category name in API
+//                                    dataObject.getString("category_id"),
+//                                    dataObject.getString("quantity"),
+//                                    "0.0000" // Assuming no sales in API
+//                            );
+//
+//                            // Save product data in SharedPreferences
+//                            SharedPreferences sharedPreferences = getSharedPreferences("ProductPrefs", MODE_PRIVATE);
+//                            SharedPreferences.Editor editor = sharedPreferences.edit();
+//                            editor.putString("product_id", product.getId());
+//                            editor.putString("product_code", product.getCode());
+//                            editor.putString("product_type", product.getType());
+//                            editor.putString("product_name", product.getName());
+//                            editor.putString("product_price", product.getPrice());
+//                            editor.putString("product_image", product.getImage());
+//                            editor.putString("product_category", product.getCategory());
+//                            editor.putString("product_stock", product.getStock());
+//                            editor.putString("product_sales", product.getSales());
+//                            editor.apply();
+//
+//                            // Update UI on the main thread
+//                            runOnUiThread(() -> {
+//                                if (dialogBinding != null && dialogBinding.LoadProducts != null) {
+//                                    dialogBinding.LoadProducts.setText(product.getName());
+//                                } else {
+//                                    Log.e("AnalyzeImage", "Dialog binding or LoadProducts TextView is null.");
+//                                }
+//                                if (dialogBinding != null && dialogBinding.price != null) {
+//                                    dialogBinding.price.setText(product.getPrice());
+//                                } else {
+//                                    Log.e("AnalyzeImage", "Dialog binding or price TextView is null.");
+//                                }
+//
+//                                TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
+//                                if (quantityEditText != null) {
+//                                    String quantityStr = quantityEditText.getText().toString();
+//                                    int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
+//                                    double price = Double.parseDouble(product.getPrice());
+//                                    double total = price * quantity;
+//
+//                                    if (dialogBinding != null && dialogBinding.totalAmt != null) {
+//                                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "%.2f", total));
+//                                    } else {
+//                                        Log.e("CalculateTotal", "Total TextView is null.");
+//                                    }
+//                                } else {
+//                                    Log.e("AnalyzeImage", "Quantity EditText is null.");
+//                                }
+//
+//                                Log.d("getProduct", "UI updated successfully.");
+//                            });
+//                        } else {
+//                            String message = jsonResponse.getString("message");
+//                            JSONArray missingData = jsonResponse.getJSONArray("missing_data");
+//                            Log.w("getProduct", "Error: " + message);
+//                            Log.w("getProduct", "Missing data: " + missingData.toString());
+//                        }
+//                    } catch (Exception e) {
+//                        Log.e("getProduct", "Error processing response: ", e);
+//                    }
+//                }).start();
+//            }
+//
+//
+//        });
+//
+//        populateSales();
+//    }
+
+
+    private void getProductUsingCode() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+        Log.d("getProduct", "Day of Week: " + dayOfWeek);
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
+        Log.d("barcodeRead", barcodeRead);
+
+        Request request = new Request.Builder()
+                .url(ROUTE_URL + "productsApi.php?code=028292288845") // Example product code
+                .method("GET", null)
+                .build();
+
+        Log.d("Api_request", request.toString());
+        Log.d("getProduct", "Sending request...");
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> Log.e("getProduct", "Request failed: " + e.toString()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d("getProduct", "Response received: " + response.toString());
+
+                if (!response.isSuccessful()) {
+                    Log.e("getProduct", "Unexpected response code: " + response.code());
+                    throw new IOException("Unexpected code " + response);
+                }
+
+                String responseBody = response.body().string();
+                Log.d("getProduct", "Response Body: " + responseBody);
+
+                if (responseBody.isEmpty()) {
+                    Log.w("getProduct", "Empty response body");
+                    return;
+                }
+
+                new Thread(() -> {
+                    try {
+                        Log.d("getProduct", "Processing response...");
+                        JSONObject jsonResponse = new JSONObject(responseBody);
+                        boolean status = jsonResponse.getBoolean("status");
+
+                        if (status) {
+                            JSONObject dataObject = jsonResponse.getJSONObject("data");
+                            product = new ProductCodeModel(
+                                    dataObject.getString("id"),
+                                    dataObject.getString("code"),
+                                    dataObject.getString("type"),
+                                    dataObject.getString("name"),
+                                    dataObject.getString("price"),
+                                    "no_image.png", // Assuming no image in API
+                                    "", // Assuming no category name in API
+                                    dataObject.getString("category_id"),
+                                    dataObject.getString("quantity"),
+                                    "0.0000" // Assuming no sales in API
+                            );
+
+                            // Save product data in SharedPreferences
+                            SharedPreferences sharedPreferences = getSharedPreferences("ProductPrefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("product_id", product.getId());
+                            editor.putString("product_code", product.getCode());
+                            editor.putString("product_type", product.getType());
+                            editor.putString("product_name", product.getName());
+                            editor.putString("product_price", product.getPrice());
+                            editor.putString("product_image", product.getImage());
+                            editor.putString("product_category", product.getCategory());
+                            editor.putString("product_stock", product.getStock());
+                            editor.putString("product_sales", product.getSales());
+                            editor.apply();
+
+                            // Update UI on the main thread
+                            runOnUiThread(() -> {
+                                if (dialogBinding != null && dialogBinding.LoadProducts != null) {
+                                    dialogBinding.LoadProducts.setText(product.getName());
+                                } else {
+                                    Log.e("AnalyzeImage", "Dialog binding or LoadProducts TextView is null.");
+                                }
+                                if (dialogBinding != null && dialogBinding.price != null) {
+                                    dialogBinding.price.setText(product.getPrice());
+                                } else {
+                                    Log.e("AnalyzeImage", "Dialog binding or price TextView is null.");
+                                }
+
+                                TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
+                                if (quantityEditText != null) {
+                                    String quantityStr = quantityEditText.getText().toString();
+                                    int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
+                                    double price = Double.parseDouble(product.getPrice());
+                                    double total = price * quantity;
+
+                                    if (dialogBinding != null && dialogBinding.totalAmt != null) {
+                                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "%.2f", total));
+                                    } else {
+                                        Log.e("CalculateTotal", "Total TextView is null.");
+                                    }
+                                } else {
+                                    Log.e("AnalyzeImage", "Quantity EditText is null.");
+                                }
+
+                                // Now that product data is available, populate the sales
+                                populateSales(product);
+
+                                Log.d("getProduct", "UI updated successfully.");
+                            });
+                        } else {
+                            String message = jsonResponse.getString("message");
+                            Log.w("getProduct", "Error: " + message);
+                        }
+                    } catch (Exception e) {
+                        Log.e("getProduct", "Error processing response: ", e);
+                    }
+                }).start();
+            }
+        });
+    }
+
+
+
+
+//    private void getProductUsingCode() {
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(new Date());
+//        String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+//        Log.d("getProduct", "Day of Week: " + dayOfWeek);
+//
+//        OkHttpClient client = new OkHttpClient().newBuilder()
+//                .connectTimeout(60, TimeUnit.SECONDS)
+//                .readTimeout(60, TimeUnit.SECONDS)
+//                .writeTimeout(60, TimeUnit.SECONDS)
+//                .build();
+//        Log.d("barcodeRead", barcodeRead);
+//
+//        Request request = new Request.Builder()
+////                .url(ROUTE_URL + "productsApi.php?code=" + barcodeRead)
+//                .url(ROUTE_URL + "productsApi.php?code=XATU034927")
+//                .method("GET", null)
+//                .build();
+//
+//        Log.d("Api_request", request.toString());
+//        Log.d("getProduct", "Sending request...");
+//
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                runOnUiThread(() -> Log.e("getProduct", "Request failed: " + e.toString()));
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException {
+//                Log.d("getProduct", "Response received: " + response.toString());
+//
+//                if (!response.isSuccessful()) {
+//                    Log.e("getProduct", "Unexpected response code: " + response.code());
+//                    throw new IOException("Unexpected code " + response);
+//                }
+//
+//                String responseBody = response.body().string();
+//                Log.d("getProduct", "Response Body: " + responseBody);
+//
+//                if (responseBody.isEmpty()) {
+//                    Log.w("getProduct", "Empty response body");
+//                    return;
+//                }
+//
+//                new Thread(() -> {
+//                    try {
+//                        Log.d("getProduct", "Processing response...");
+//                        JSONObject jsonResponse = new JSONObject(responseBody);
+//                        boolean status = jsonResponse.getBoolean("status");
+//
+//                        if (status) {
+//                            JSONObject dataObject = jsonResponse.getJSONObject("data");
+//                            product = new ProductCodeModel(
+//                                    dataObject.getString("id"),
+//                                    dataObject.getString("code"),
+//                                    dataObject.getString("type"),
+//                                    dataObject.getString("name"),
+//                                    dataObject.getString("price"),
+//                                    "no_image.png", // Assuming no image in API
+//                                    "", // Assuming no category name in API
+//                                    dataObject.getString("category_id"),
+//                                    dataObject.getString("quantity"),
+//                                    "0.0000" // Assuming no sales in API
+//                            );
+//
+//                            // Save product data in SharedPreferences
+//                            SharedPreferences sharedPreferences = getSharedPreferences("ProductPrefs", MODE_PRIVATE);
+//                            SharedPreferences.Editor editor = sharedPreferences.edit();
+//                            editor.putString("product_id", product.getId());
+//                            editor.putString("product_code", product.getCode());
+//                            editor.putString("product_type", product.getType());
+//                            editor.putString("product_name", product.getName());
+//                            editor.putString("product_price", product.getPrice());
+//                            editor.putString("product_image", product.getImage());
+//                            editor.putString("product_category", product.getCategory());
+//                            editor.putString("product_stock", product.getStock());
+//                            editor.putString("product_sales", product.getSales());
+//                            editor.apply();
+//
+//                            // Update UI on the main thread
+//                            runOnUiThread(() -> {
+//                                if (dialogBinding != null && dialogBinding.LoadProducts != null) {
+//                                    dialogBinding.LoadProducts.setText(product.getName());
+//                                } else {
+//                                    Log.e("AnalyzeImage", "Dialog binding or LoadProducts TextView is null.");
+//                                }
+//                                if (dialogBinding != null && dialogBinding.price != null) {
+//                                    dialogBinding.price.setText(product.getPrice());
+//                                } else {
+//                                    Log.e("AnalyzeImage", "Dialog binding or price TextView is null.");
+//                                }
+//
+//                                TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
+//                                if (quantityEditText != null) {
+//                                    String quantityStr = quantityEditText.getText().toString();
+//                                    int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
+//                                    double price = Double.parseDouble(product.getPrice());
+//                                    double total = price * quantity;
+//
+//                                    if (dialogBinding != null && dialogBinding.totalAmt != null) {
+//                                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "%.2f", total));
+//                                    } else {
+//                                        Log.e("CalculateTotal", "Total TextView is null.");
+//                                    }
+//                                } else {
+//                                    Log.e("AnalyzeImage", "Quantity EditText is null.");
+//                                }
+//
+//                                Log.d("getProduct", "UI updated successfully.");
+//                            });
+//                        } else {
+//                            String message = jsonResponse.getString("message");
+//                            JSONArray missingData = jsonResponse.getJSONArray("missing_data");
+//                            Log.w("getProduct", "Error: " + message);
+//                            Log.w("getProduct", "Missing data: " + missingData.toString());
+//                        }
+//                    } catch (Exception e) {
+//                        Log.e("getProduct", "Error processing response: ", e);
+//                    }
+//                }).start();
+//            }
+//
+//
+//        });
+//
+//        populateSales(product);
+//    }
+//    private void getProductUsingCode() {
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(new Date());
+//        String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+//        Log.d("getProduct", "Day of Week: " + dayOfWeek);
+//
+//        OkHttpClient client = new OkHttpClient().newBuilder()
+//                .connectTimeout(60, TimeUnit.SECONDS)
+//                .readTimeout(60, TimeUnit.SECONDS)
+//                .writeTimeout(60, TimeUnit.SECONDS)
+//                .build();
+//        Log.d("barcodeRead", barcodeRead);
+//
+//        Request request = new Request.Builder()
+//                .url(ROUTE_URL + "productsApi.php?code=XATU034927") // Use dynamic barcode here
+//                .method("GET", null)
+//                .build();
+//
+//        Log.d("Api_request", request.toString());
+//        Log.d("getProduct", "Sending request...");
+//
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                runOnUiThread(() -> Log.e("getProduct", "Request failed: " + e.toString()));
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException {
+//                Log.d("getProduct", "Response received: " + response.toString());
+//
+//                if (!response.isSuccessful()) {
+//                    Log.e("getProduct", "Unexpected response code: " + response.code());
+//                    throw new IOException("Unexpected code " + response);
+//                }
+//
+//                String responseBody = response.body().string();
+//                Log.d("getProduct", "Response Body: " + responseBody);
+//
+//                if (responseBody.isEmpty()) {
+//                    Log.w("getProduct", "Empty response body");
+//                    return;
+//                }
+//
+//                new Thread(() -> {
+//                    try {
+//                        Log.d("getProduct", "Processing response...");
+//                        JSONObject jsonResponse = new JSONObject(responseBody);
+//                        boolean status = jsonResponse.getBoolean("status");
+//
+//                        if (status) {
+//                            JSONObject dataObject = jsonResponse.getJSONObject("data");
+//                            product = new ProductCodeModel(
+//                                    dataObject.getString("id"),
+//                                    dataObject.getString("code"),
+//                                    dataObject.getString("type"),
+//                                    dataObject.getString("name"),
+//                                    dataObject.getString("price"),
+//                                    "no_image.png", // Assuming no image in API
+//                                    "", // Assuming no category name in API
+//                                    dataObject.getString("category_id"),
+//                                    dataObject.getString("quantity"),
+//                                    dataObject.getString("sales") // Now directly from API response
+//                            );
+//
+//                            // Directly populate the sales data
+//                            populateSales(product);
+//
+//                            // Update UI on the main thread
+//                            runOnUiThread(() -> {
+//                                if (dialogBinding != null && dialogBinding.LoadProducts != null) {
+//                                    dialogBinding.LoadProducts.setText(product.getName());
+//                                } else {
+//                                    Log.e("AnalyzeImage", "Dialog binding or LoadProducts TextView is null.");
+//                                }
+//                                if (dialogBinding != null && dialogBinding.price != null) {
+//                                    dialogBinding.price.setText(product.getPrice());
+//                                } else {
+//                                    Log.e("AnalyzeImage", "Dialog binding or price TextView is null.");
+//                                }
+//
+//                                TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
+//                                if (quantityEditText != null) {
+//                                    String quantityStr = quantityEditText.getText().toString();
+//                                    int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
+//                                    double price = Double.parseDouble(product.getPrice());
+//                                    double total = price * quantity;
+//
+//                                    if (dialogBinding != null && dialogBinding.totalAmt != null) {
+//                                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "%.2f", total));
+//                                    } else {
+//                                        Log.e("CalculateTotal", "Total TextView is null.");
+//                                    }
+//                                } else {
+//                                    Log.e("AnalyzeImage", "Quantity EditText is null.");
+//                                }
+//
+//                                Log.d("getProduct", "UI updated successfully.");
+//                            });
+//                        } else {
+//                            String message = jsonResponse.getString("message");
+//                            JSONArray missingData = jsonResponse.getJSONArray("missing_data");
+//                            Log.w("getProduct", "Error: " + message);
+//                            Log.w("getProduct", "Missing data: " + missingData.toString());
+//                        }
+//                    } catch (Exception e) {
+//                        Log.e("getProduct", "Error processing response: ", e);
+//                    }
+//                }).start();
+//            }
+//        });
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -891,95 +1519,166 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
             });
         }
 
-        dialogBinding.confirmButton.setOnClickListener(view -> {
 
-            Location current = new Location(LocationManager.GPS_PROVIDER);
-            current.setLatitude(latitude);
-            current.setLongitude(longitude);
-
-            Location customer = new Location(LocationManager.GPS_PROVIDER);
-            customer.setLatitude(Double.parseDouble(sharedPreferences.getString("LAT", "")));
-            customer.setLongitude(Double.parseDouble(sharedPreferences.getString("LNG", "")));
-
-            if (validate()) {
-                try {
-                    if (Double.parseDouble(new DecimalFormat("0.00").format(current.distanceTo(customer) / 1000)) <= 500000) {
-                        int discount = 0;
-                    System.out.println("hchcjhc "+dialogBinding.Discount.getEditText().getText().toString().trim());
-                        if (!dialogBinding.Discount.getEditText().getText().toString().trim().equals("")) {
-                            discount = Integer.parseInt(dialogBinding.Discount.getEditText().getText().toString().trim());
-                        }
-
-                        int total_final_discount = discount * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
-
-                        if(positive_negative_discount.equals("0")){
-                            final_price = Integer.parseInt(price) + discount;
-                        }else{
-                            final_price = Integer.parseInt(price) - discount;
-                        }
-
-
-                        sub_total = final_price * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
-
-
-                        if (is_kitchen.equals("0")) {
-                            if (new Database(ShopActivity.this).fetch_product_quantity(product_id) >= Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim())) {
-                                String response = new Database(getBaseContext()).create_sale(new SaleModel(
-                                        product_id,
-                                        product_code,
-                                        name,
-                                        String.valueOf(final_price),
-                                        dialogBinding.Quantity.getEditText().getText().toString().trim(),
-                                        String.valueOf(sub_total),
-                                        sharedPreferences.getString("CUSTOMER_ID", ""),
-                                        String.valueOf(total_final_discount)));
-
-                                Toast.makeText(ShopActivity.this, response, Toast.LENGTH_LONG).show();
-                                populateSales();
-                            } else {
-                                Toast.makeText(ShopActivity.this, "Quantity entered exceed the stock", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        if (is_kitchen.equals("1")) {
-                            if (new Database(ShopActivity.this).fetch_product_quantity(portion1) >= (Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim()) * Integer.parseInt(portion1qty)) &&
-                                    new Database(ShopActivity.this).fetch_product_quantity(portion2) >= (Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim()) * Integer.parseInt(portion2qty)) &&
-                                    new Database(ShopActivity.this).fetch_product_quantity(portion3) >= (Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim()) * Integer.parseInt(portion3qty)) &&
-                                    new Database(ShopActivity.this).fetch_product_quantity(portion4) >= (Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim()) * Integer.parseInt(portion4qty)) &&
-                                    new Database(ShopActivity.this).fetch_product_quantity(portion5) >= (Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim()) * Integer.parseInt(portion5qty))) {
-
-                                String response = new Database(getBaseContext()).create_sale(new SaleModel(
-                                        product_id,
-                                        product_code,
-                                        name,
-                                        String.valueOf(final_price),
-                                        dialogBinding.Quantity.getEditText().getText().toString().trim(),
-                                        String.valueOf(sub_total),
-                                        sharedPreferences.getString("CUSTOMER_ID", ""),
-                                        String.valueOf(total_final_discount)));
-
-                                Toast.makeText(ShopActivity.this, response, Toast.LENGTH_LONG).show();
-                                populateSales();
-                            } else {
-                                Toast.makeText(ShopActivity.this, "Quantity entered exceed the stock", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                    else {
-                        Toast.makeText(ShopActivity.this, "Please move closer to the customer shop", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                product_id = null;
-                bottomSheetDialog.dismiss();
-            }
-
-        });
+//            dialogBinding.confirmButton.setOnClickListener(view -> {
+//                Log.d("ConfirmButton", "Button clicked!");
+//
+//                // Ensure button is clickable and enabled
+//                dialogBinding.confirmButton.setClickable(true);
+//                dialogBinding.confirmButton.setEnabled(true);
+//
+//                // Log the button's state before processing
+//                Log.d("ConfirmButton", "Button enabled: " + dialogBinding.confirmButton.isEnabled());
+//
+//                // Initialize current and customer location
+//                Location current = new Location(LocationManager.GPS_PROVIDER);
+//                current.setLatitude(latitude);
+//                current.setLongitude(longitude);
+//
+//                Location customer = new Location(LocationManager.GPS_PROVIDER);
+//                customer.setLatitude(Double.parseDouble(sharedPreferences.getString("LAT", "")));
+//                customer.setLongitude(Double.parseDouble(sharedPreferences.getString("LNG", "")));
+//
+//                // Validate input
+//                if (validate()) {
+//                    try {
+//                        Log.d("ConfirmButton", "Validation passed");
+//
+//                        // Distance check
+//                        double distanceInKm = current.distanceTo(customer) / 1000;
+//                        Log.d("ConfirmButton", "Distance to customer: " + distanceInKm);
+//
+//                        if (distanceInKm <= 500000) {
+//                            int discount = 0;
+//                            String discountText = dialogBinding.Discount.getEditText().getText().toString().trim();
+//                            Log.d("ConfirmButton", "Discount entered: " + discountText);
+//
+//                            if (!discountText.equals("")) {
+//                                discount = Integer.parseInt(discountText);
+//                            }
+//
+//                            int total_final_discount = discount * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
+//                            Log.d("ConfirmButton", "Total final discount: " + total_final_discount);
+//
+//                            if (positive_negative_discount.equals("0")) {
+//                                final_price = Integer.parseInt(price) + discount;
+//                            } else {
+//                                final_price = Integer.parseInt(price) - discount;
+//                            }
+//
+//                            sub_total = final_price * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
+//
+//                            // Handle non-kitchen products
+//                            if (is_kitchen.equals("0")) {
+//                                int enteredQuantity = Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
+//                                int productQuantity = new Database(ShopActivity.this).fetch_product_quantity(product_id);
+//                                Log.d("ConfirmButton", "Entered quantity: " + enteredQuantity + ", Available stock: " + productQuantity);
+//
+//                                if (productQuantity >= enteredQuantity) {
+//                                    String response = new Database(getBaseContext()).create_sale(new SaleModel(
+//                                            product_id,
+//                                            product_code,
+//                                            name,
+//                                            String.valueOf(final_price),
+//                                            String.valueOf(enteredQuantity),
+//                                            String.valueOf(sub_total),
+//                                            sharedPreferences.getString("CUSTOMER_ID", ""),
+//                                            String.valueOf(total_final_discount)));
+//
+//                                    Toast.makeText(ShopActivity.this, response, Toast.LENGTH_LONG).show();
+//                                    populateSales();
+//                                } else {
+//                                    Toast.makeText(ShopActivity.this, "Quantity entered exceeds stock", Toast.LENGTH_SHORT).show();
+//                                }
+//                            }
+//
+//                            // Handle kitchen products
+//                            if (is_kitchen.equals("1")) {
+//                                int enteredQuantity = Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
+//                                if (new Database(ShopActivity.this).fetch_product_quantity(portion1) >= (enteredQuantity * Integer.parseInt(portion1qty)) &&
+//                                        new Database(ShopActivity.this).fetch_product_quantity(portion2) >= (enteredQuantity * Integer.parseInt(portion2qty)) &&
+//                                        new Database(ShopActivity.this).fetch_product_quantity(portion3) >= (enteredQuantity * Integer.parseInt(portion3qty)) &&
+//                                        new Database(ShopActivity.this).fetch_product_quantity(portion4) >= (enteredQuantity * Integer.parseInt(portion4qty)) &&
+//                                        new Database(ShopActivity.this).fetch_product_quantity(portion5) >= (enteredQuantity * Integer.parseInt(portion5qty))) {
+//
+//                                    String response = new Database(getBaseContext()).create_sale(new SaleModel(
+//                                            product_id,
+//                                            product_code,
+//                                            name,
+//                                            String.valueOf(final_price),
+//                                            String.valueOf(enteredQuantity),
+//                                            String.valueOf(sub_total),
+//                                            sharedPreferences.getString("CUSTOMER_ID", ""),
+//                                            String.valueOf(total_final_discount)));
+//
+//                                    Toast.makeText(ShopActivity.this, response, Toast.LENGTH_LONG).show();
+//                                    populateSales();
+//                                } else {
+//                                    Toast.makeText(ShopActivity.this, "Quantity entered exceeds stock", Toast.LENGTH_SHORT).show();
+//                                }
+//                            }
+//
+//                        } else {
+//                            Toast.makeText(ShopActivity.this, "Please move closer to the customer shop", Toast.LENGTH_SHORT).show();
+//                        }
+//
+//                    } catch (Exception e) {
+//                        Log.e("ConfirmButton", "Error occurred during confirmation", e);
+//                        e.printStackTrace();
+//                    }
+//
+//                    // Reset product_id and dismiss the bottom sheet dialog
+//                    product_id = null;
+//                    bottomSheetDialog.dismiss();
+//                } else {
+//                    Log.d("ConfirmButton", "Validation failed");
+//                }
+//            });
         bottomSheetDialog.show();
 
 
-        dialogBinding.calculate.setOnClickListener(view -> {
+
+
+
+            dialogBinding.calculate.setOnClickListener(view -> {
+                dialogBinding.calculate.setEnabled(true);
+
+                Log.e("CalculateTotal", "Product is null.");
+                Log.e("CalculateTotal", "Product is null.");
+
+                // Retrieve the quantity from the EditText
+                TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
+
+                if (quantityEditText != null) {
+                    // Get the quantity entered by the user (default to "1" if empty)
+                    String quantityStr = quantityEditText.getText().toString();
+                    int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
+
+                    // Get the price of the product (assume it's a valid number)
+                    if (product != null) {
+                        try {
+                            double price = Double.parseDouble(product.getPrice());
+                            total = price * quantity;
+
+                            // Update the total amount in the TextView
+                            if (dialogBinding != null && dialogBinding.totalAmt != null) {
+                                dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "Total: $%.2f", total));
+                            } else {
+                                Log.e("CalculateTotal", "Total TextView is null.");
+                            }
+                        } catch (NumberFormatException e) {
+                            Log.e("CalculateTotal", "Error parsing price", e);
+                        }
+                    } else {
+                        Log.e("CalculateTotal", "Product is null.");
+                    }
+                } else {
+                    Log.e("CalculateTotal", "Quantity EditText is null.");
+                }
+
+
+
+
 
             Location current = new Location(LocationManager.GPS_PROVIDER);
             current.setLatitude(latitude);
@@ -1010,49 +1709,6 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
                         sub_total = final_price * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
                         dialogBinding.totalAmt.setText(String.valueOf(sub_total));
 
-
-//                        if (is_kitchen.equals("0")) {
-//                            if (new Database(ShopActivity.this).fetch_product_quantity(product_id) >= Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim())) {
-//                                String response = new Database(getBaseContext()).create_sale(new SaleModel(
-//                                        product_id,
-//                                        product_code,
-//                                        name,
-//                                        String.valueOf(final_price),
-//                                        dialogBinding.Quantity.getEditText().getText().toString().trim(),
-//                                        String.valueOf(sub_total),
-//                                        sharedPreferences.getString("CUSTOMER_ID", ""),
-//                                        String.valueOf(total_final_discount)));
-//
-//                                Toast.makeText(ShopActivity.this, response, Toast.LENGTH_LONG).show();
-//                                populateSales();
-//                            } else {
-//                                Toast.makeText(ShopActivity.this, "Quantity entered exceed the stock", Toast.LENGTH_SHORT).show();
-//                            }
-//                        }
-
-//                        if (is_kitchen.equals("1")) {
-//                            if (new Database(ShopActivity.this).fetch_product_quantity(portion1) >= (Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim()) * Integer.parseInt(portion1qty)) &&
-//                                    new Database(ShopActivity.this).fetch_product_quantity(portion2) >= (Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim()) * Integer.parseInt(portion2qty)) &&
-//                                    new Database(ShopActivity.this).fetch_product_quantity(portion3) >= (Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim()) * Integer.parseInt(portion3qty)) &&
-//                                    new Database(ShopActivity.this).fetch_product_quantity(portion4) >= (Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim()) * Integer.parseInt(portion4qty)) &&
-//                                    new Database(ShopActivity.this).fetch_product_quantity(portion5) >= (Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim()) * Integer.parseInt(portion5qty))) {
-//
-//                                String response = new Database(getBaseContext()).create_sale(new SaleModel(
-//                                        product_id,
-//                                        product_code,
-//                                        name,
-//                                        String.valueOf(final_price),
-//                                        dialogBinding.Quantity.getEditText().getText().toString().trim(),
-//                                        String.valueOf(sub_total),
-//                                        sharedPreferences.getString("CUSTOMER_ID", ""),
-//                                        String.valueOf(total_final_discount)));
-//
-//                                Toast.makeText(ShopActivity.this, response, Toast.LENGTH_LONG).show();
-////                                populateSales();
-//                            } else {
-//                                Toast.makeText(ShopActivity.this, "Quantity entered exceed the stock", Toast.LENGTH_SHORT).show();
-//                            }
-//                        }
                     }
                     else {
                         Toast.makeText(ShopActivity.this, "Please move closer to the customer shop", Toast.LENGTH_SHORT).show();
@@ -1060,23 +1716,26 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-//                product_id = null;
-//                bottomSheetDialog.dismiss();
+                product_id = null;
+                bottomSheetDialog.dismiss();
             }
 
         });
         bottomSheetDialog.show();
     }
 
-    public void showPaymentCode() {
+    public void showPaymentCode(ProductCodeModel product) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(ShopActivity.this, R.style.CustomBottomSheetDialogTheme);
         paymentBinding = DataBindingUtil.inflate(LayoutInflater.from(ShopActivity.this), R.layout.payment_dialog, null, false);
         bottomSheetDialog.setContentView(paymentBinding.getRoot());
 
         paymentBinding.cancel.setOnClickListener(view -> bottomSheetDialog.dismiss());
 
-        paymentBinding.TotalPrice.setText("Ksh " + total_payment);
-        paymentBinding.GrandTotal.setText("Ksh " + total_payment);
+//        paymentBinding.TotalPrice.setText("Ksh " + total);
+        paymentBinding.TotalPrice.setText("Ksh " + total);
+//        paymentBinding.TotalPrice.setText(String.format(Locale.getDefault(), "KES%.2f", total));
+//        paymentBinding.GrandTotal.setText("Ksh " + total_payment);
+        paymentBinding.GrandTotal.setText("Ksh " + total);
 
         paymentBinding.RecyclerView.setHasFixedSize(true);
         paymentBinding.RecyclerView.setLayoutManager(new GridLayoutManager(ShopActivity.this, 3));
@@ -1095,52 +1754,42 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
             if (selectedPayments.size() < 1 || selectedPayments.size() > 2) {
                 Toast.makeText(ShopActivity.this, "Please select at most 2 payment methods", Toast.LENGTH_LONG).show();
             } else {
-                // Retrieving the stored product data from SharedPreferences
-                SharedPreferences sharedPreferences = getSharedPreferences("ProductPrefs", MODE_PRIVATE);
-                String saleId = sharedPreferences.getString("sale_id", "");
-                String productId = sharedPreferences.getString("product_id", "");
-                String productCode = sharedPreferences.getString("product_code", "");
-                String productType = sharedPreferences.getString("product_type", "");
-                String productName = sharedPreferences.getString("product_name", "");
-                String productPrice = sharedPreferences.getString("product_price", "");
-                String productImage = sharedPreferences.getString("product_image", "no_image.png");
-                String productCategory = sharedPreferences.getString("product_category", "");
-                String productCategoryId = sharedPreferences.getString("product_category_id", "");
-                String productStock = sharedPreferences.getString("product_stock", "");
-                String productSales = sharedPreferences.getString("product_sales", "0.0000");
-                String discount = sharedPreferences.getString("discount", "0");
-                String total = sharedPreferences.getString("total", "0");
-
                 // Creating JSON objects for the selected payment methods and product data
                 JSONArray jsonArray = new JSONArray();
                 try {
                     JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("sale_id", saleId);
-                    jsonObject.put("product_id", productId);
-                    jsonObject.put("product_code", productCode);
-                    jsonObject.put("product_type", productType);
-                    jsonObject.put("product_name", productName);
-                    jsonObject.put("product_price", productPrice);
-                    jsonObject.put("product_image", productImage);
-                    jsonObject.put("product_category", productCategory);
-                    jsonObject.put("product_category_id", productCategoryId);
-                    jsonObject.put("product_stock", productStock);
-                    jsonObject.put("product_sales", productSales);
-                    jsonObject.put("discount", discount);
-                    jsonObject.put("total", total);
+                    jsonObject.put("sale_id", product.getId());  // Assuming sale_id is product id
+                    jsonObject.put("product_id", product.getId());
+                    jsonObject.put("product_code", product.getCode());
+                    jsonObject.put("product_type", product.getType());
+                    jsonObject.put("product_name", product.getName());
+                    jsonObject.put("product_price", product.getPrice());
+                    jsonObject.put("product_image", product.getImage());
+                    jsonObject.put("product_category", product.getCategory());
+                    jsonObject.put("product_category_id", product.getCategory_id());
+                    jsonObject.put("product_stock", product.getStock());
+                    jsonObject.put("product_sales", product.getSales());
+                    jsonObject.put("discount", "0"); // Example: Hardcoded discount
+                    jsonObject.put("total", total_payment);  // Example: Using the total payment
                     jsonArray.put(jsonObject);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
-                SharedPreferences preferences = getSharedPreferences("PAYMENT_SELECTED", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString("PAYMENT_AMOUNT", String.valueOf(total_payment));
-                editor.putString("PAYMENT_METHOD", new Gson().toJson(selectedPayments));
-                editor.putString("PRODUCT_LIST", jsonArray.toString());
-                editor.apply();
+                Log.d("ProductDetails", "Product ID: " + product.getId());
+                Log.d("ProductDetails", "Product Name: " + product.getName());
+                Log.d("ProductDetails", "Product Code: " + product.getCode());
+                Log.d("ProductDetails", "Product Price: " + product.getPrice());
+                Log.d("ProductDetails", "Product Category: " + product.getCategory());
 
-                startActivity(new Intent(ShopActivity.this, PaymentActivity.class));
+
+                // Passing the ProductCodeModel object to the PaymentActivity
+                Intent intent = new Intent(ShopActivity.this, PaymentActivity.class);
+                intent.putExtra("product_data", product);  // 'product' is the ProductCodeModel object passed as parameter
+                startActivity(intent);
+
+
+
                 bottomSheetDialog.dismiss();
             }
         });
@@ -1436,54 +2085,128 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
     }
 
 
-    public void populateSales() {
-        SharedPreferences sharedPreferences = getSharedPreferences("ProductPrefs", MODE_PRIVATE);
+//    public void populateSales() {
+//        SharedPreferences sharedPreferences = getSharedPreferences("ProductPrefs", MODE_PRIVATE);
+//
+//        // Retrieve the product data from SharedPreferences
+//        String saleId = sharedPreferences.getString("sale_id", "");  // Assuming sale ID is stored
+//        String productId = sharedPreferences.getString("product_id", "");
+//        String productCode = sharedPreferences.getString("product_code", "");
+//        String productType = sharedPreferences.getString("product_type", "");
+//        String productName = sharedPreferences.getString("product_name", "");
+//        String productPrice = sharedPreferences.getString("product_price", "");
+//        String productImage = sharedPreferences.getString("product_image", "no_image.png");
+//        String productCategory = sharedPreferences.getString("product_category", "");
+//        String productCategoryId = sharedPreferences.getString("product_category_id", "");
+//        String productStock = sharedPreferences.getString("product_stock", "");
+//        String productSales = sharedPreferences.getString("product_sales", "0.0000");
+//        String discount = sharedPreferences.getString("discount", "0");  // Assuming discount is stored
+//        String total = sharedPreferences.getString("total", "0");  // Assuming total is stored
+//
+//        // Optionally, log the retrieved product data
+//        Log.d("populateSales", "Product ID: " + productId);
+//        Log.d("populateSales", "Product Code: " + productCode);
+//        Log.d("populateSales", "Product Name: " + productName);
+//        Log.d("populateSales", "Product Type: " + productType);
+//        Log.d("populateSales", "Product Price: " + productPrice);
+//        Log.d("populateSales", "Product Category: " + productCategory);
+//        Log.d("populateSales", "Product productCategoryId: " + productCategoryId);
+//        Log.d("populateSales", "Product ProductStock: " + productStock);
+//        Log.d("populateSales", "Product Product Sales: " + productSales);
+//        Log.d("populateSales", "Product Discount: " + discount);
+//        Log.d("populateSales", "Product Total: " + total);
+//
+//        // Clear the saleModel list
+//        saleModel.clear();
+//
+//        // Create a new SaleModelCode object with the retrieved data
+//        SaleModelCode sale = new SaleModelCode(
+//                saleId,
+//                productId,
+//                productName,
+//                productCode,
+//                productType,
+//                productCategory,
+//                productCategoryId,
+//                productPrice,
+//                productImage,
+//                productStock,
+//                productSales,
+//                discount,
+//                total
+//        );
+//
+//        // Add the sale object to the saleModel list
+//        saleModel.add(sale);
+//
+//        // Initialize and set the SaleAdapter
+//        saleAdapter = new SaleAdapterCode(ShopActivity.this, saleModel, this);  // Use the correct adapter name
+//        saleAdapter.notifyDataSetChanged();
+//        binding.RecyclerView.setAdapter(saleAdapter);
+//
+//        // Calculate the total payment and discount
+//        total_payment = 0;
+//        total_discount = 0;
+//
+//        for (SaleModelCode model : saleModel) {
+//            total_payment += Integer.parseInt(model.getTotal());
+//            total_discount += Integer.parseInt(model.getDiscount());
+//        }
+//
+//        // Update the UI with the totals
+//        binding.TotalDue.setText("Kshs " + total_payment);
+//        binding.TotalAmount.setText("Kshs " + total_payment);
+//
+//        // Update the UI based on whether there are items in the saleModel list
+//        if (saleModel.isEmpty()) {
+//            binding.Head.setVisibility(View.GONE);
+//            binding.Lay.setVisibility(View.VISIBLE);
+//            binding.StatusCard.setVisibility(View.GONE);
+//            binding.TrolleyItems.setVisibility(View.GONE);
+//
+//            binding.NotAttending.setVisibility(View.VISIBLE);
+//            binding.NotAttending.setText("Not attending to " + sharedPreferences.getString("SELECTED_CUSTOMER_NAME", "") + "?");
+//        } else {
+//            binding.Head.setVisibility(View.VISIBLE);
+//            binding.Lay.setVisibility(View.GONE);
+//            binding.StatusCard.setVisibility(View.VISIBLE);
+//            binding.TrolleyItems.setVisibility(View.VISIBLE);
+//
+//            binding.NotAttending.setChecked(false);
+//            binding.NotAttending.setVisibility(View.GONE);
+//        }
+//
+//        // Optionally, update any additional UI elements with the retrieved product data if needed
+//        // For example, binding.ProductName.setText(productName);
+//        // Or binding.ProductPrice.setText("Kshs " + productPrice);
+//    }
 
-        // Retrieve the product data from SharedPreferences
-        String saleId = sharedPreferences.getString("sale_id", "");  // Assuming sale ID is stored
-        String productId = sharedPreferences.getString("product_id", "");
-        String productCode = sharedPreferences.getString("product_code", "");
-        String productType = sharedPreferences.getString("product_type", "");
-        String productName = sharedPreferences.getString("product_name", "");
-        String productPrice = sharedPreferences.getString("product_price", "");
-        String productImage = sharedPreferences.getString("product_image", "no_image.png");
-        String productCategory = sharedPreferences.getString("product_category", "");
-        String productCategoryId = sharedPreferences.getString("product_category_id", "");
-        String productStock = sharedPreferences.getString("product_stock", "");
-        String productSales = sharedPreferences.getString("product_sales", "0.0000");
-        String discount = sharedPreferences.getString("discount", "0");  // Assuming discount is stored
-        String total = sharedPreferences.getString("total", "0");  // Assuming total is stored
-
-        // Optionally, log the retrieved product data
-        Log.d("populateSales", "Product ID: " + productId);
-        Log.d("populateSales", "Product Name: " + productName);
-        Log.d("populateSales", "Product Price: " + productPrice);
-
+    public void populateSales(ProductCodeModel product) {
         // Clear the saleModel list
         saleModel.clear();
 
-        // Create a new SaleModelCode object with the retrieved data
+        // Create a new SaleModelCode object with the data from the ProductCodeModel
         SaleModelCode sale = new SaleModelCode(
-                saleId,
-                productId,
-                productName,
-                productCode,
-                productType,
-                productCategory,
-                productCategoryId,
-                productPrice,
-                productImage,
-                productStock,
-                productSales,
-                discount,
-                total
+                "",  // Assuming sale ID is not available in this context, update if necessary
+                product.getId(),
+                product.getName(),
+                product.getCode(),
+                product.getType(),
+                product.getCategory(),
+                "1", // Assuming quantity is 1
+                product.getPrice(),
+                product.getImage(),
+                product.getStock(),
+                product.getSales(),
+                "0",  // Assuming discount is 0 if not provided in the API
+                "0"   // Assuming total is 0 initially
         );
 
         // Add the sale object to the saleModel list
         saleModel.add(sale);
 
         // Initialize and set the SaleAdapter
-        saleAdapter = new SaleAdapterCode(ShopActivity.this, saleModel, this);  // Use the correct adapter name
+        saleAdapter = new SaleAdapterCode(ShopActivity.this, saleModel, this);
         saleAdapter.notifyDataSetChanged();
         binding.RecyclerView.setAdapter(saleAdapter);
 
@@ -1492,8 +2215,12 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
         total_discount = 0;
 
         for (SaleModelCode model : saleModel) {
-            total_payment += Integer.parseInt(model.getTotal());
-            total_discount += Integer.parseInt(model.getDiscount());
+            try {
+                total_payment += Integer.parseInt(model.getTotal());
+                total_discount += Integer.parseInt(model.getDiscount());
+            } catch (NumberFormatException e) {
+                Log.e("Error", "Invalid number format", e);
+            }
         }
 
         // Update the UI with the totals
@@ -1518,12 +2245,7 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
             binding.NotAttending.setChecked(false);
             binding.NotAttending.setVisibility(View.GONE);
         }
-
-        // Optionally, update any additional UI elements with the retrieved product data if needed
-        // For example, binding.ProductName.setText(productName);
-        // Or binding.ProductPrice.setText("Kshs " + productPrice);
     }
-
 
     public void populateProducts(List<ProductModel> products) {
         // Clear existing data
@@ -1558,6 +2280,155 @@ public class ShopActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void shopData() {
-        populateSales();
+        populateSales(product);
     }
+
+
+
+
+
+//    public void showDialog() {
+//        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(ShopActivity.this, R.style.CustomBottomSheetDialogTheme);
+//        dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(ShopActivity.this), R.layout.product_dialog, null, false);
+//        bottomSheetDialog.setContentView(dialogBinding.getRoot());
+//
+//        // Initialize camera preview and barcode scanner
+//        previewView = dialogBinding.previewView;
+//        barcodeScanner = BarcodeScanning.getClient();
+//
+//        // Request camera permission if not granted
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+//            startCamera();
+//        } else {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+//        }
+//
+//        // Set OnClickListener for calculate button
+//        dialogBinding.calculate.setOnClickListener(view -> {
+//            Log.d("CalculateButton", "Calculate button clicked");
+//            handleCalculateClick();
+//        });
+//
+//        // Set OnClickListener for confirm button
+//        dialogBinding.confirmButton.setOnClickListener(view -> handleConfirmButtonClick(bottomSheetDialog));
+//
+//        bottomSheetDialog.show();
+//    }
+
+    // Handle the confirm button click
+    private void handleConfirmButtonClick(BottomSheetDialog bottomSheetDialog) {
+        Log.d("ConfirmButton", "Button clicked!");
+
+        // Ensure button is clickable and enabled
+        dialogBinding.confirmButton.setClickable(true);
+        dialogBinding.confirmButton.setEnabled(true);
+
+        // Log the button's state before processing
+        Log.d("ConfirmButton", "Button enabled: " + dialogBinding.confirmButton.isEnabled());
+
+        // Initialize current and customer location
+        Location current = new Location(LocationManager.GPS_PROVIDER);
+        current.setLatitude(latitude);
+        current.setLongitude(longitude);
+
+        Location customer = new Location(LocationManager.GPS_PROVIDER);
+        customer.setLatitude(Double.parseDouble(sharedPreferences.getString("LAT", "0.0")));
+        customer.setLongitude(Double.parseDouble(sharedPreferences.getString("LNG", "0.0")));
+
+        // Validate input
+        if (validate()) {
+            try {
+                Log.d("ConfirmButton", "Validation passed");
+
+                // Distance check
+                double distanceInKm = current.distanceTo(customer) / 1000;
+                Log.d("ConfirmButton", "Distance to customer: " + distanceInKm);
+
+                if (distanceInKm <= 500000) {
+                    int discount = 0;
+                    String discountText = dialogBinding.Discount.getEditText().getText().toString().trim();
+                    Log.d("ConfirmButton", "Discount entered: " + discountText);
+
+                    if (!discountText.equals("")) {
+                        discount = Integer.parseInt(discountText);
+                    }
+
+                    int total_final_discount = discount * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
+                    Log.d("ConfirmButton", "Total final discount: " + total_final_discount);
+
+                    if (positive_negative_discount.equals("0")) {
+                        final_price = Integer.parseInt(price) + discount;
+                    } else {
+                        final_price = Integer.parseInt(price) - discount;
+                    }
+
+                    sub_total = final_price * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
+
+                    // Handle non-kitchen products
+                    if (is_kitchen.equals("0")) {
+                        int enteredQuantity = Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
+                        int productQuantity = new Database(ShopActivity.this).fetch_product_quantity(product_id);
+                        Log.d("ConfirmButton", "Entered quantity: " + enteredQuantity + ", Available stock: " + productQuantity);
+
+                        if (productQuantity >= enteredQuantity) {
+                            String response = new Database(getBaseContext()).create_sale(new SaleModel(
+                                    product_id,
+                                    product_code,
+                                    name,
+                                    String.valueOf(final_price),
+                                    String.valueOf(enteredQuantity),
+                                    String.valueOf(sub_total),
+                                    sharedPreferences.getString("CUSTOMER_ID", ""),
+                                    String.valueOf(total_final_discount)));
+
+                            Toast.makeText(ShopActivity.this, response, Toast.LENGTH_LONG).show();
+                            populateSales(product);
+                        } else {
+                            Toast.makeText(ShopActivity.this, "Quantity entered exceeds stock", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    // Handle kitchen products
+                    if (is_kitchen.equals("1")) {
+                        int enteredQuantity = Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
+                        if (new Database(ShopActivity.this).fetch_product_quantity(portion1) >= (enteredQuantity * Integer.parseInt(portion1qty)) &&
+                                new Database(ShopActivity.this).fetch_product_quantity(portion2) >= (enteredQuantity * Integer.parseInt(portion2qty)) &&
+                                new Database(ShopActivity.this).fetch_product_quantity(portion3) >= (enteredQuantity * Integer.parseInt(portion3qty)) &&
+                                new Database(ShopActivity.this).fetch_product_quantity(portion4) >= (enteredQuantity * Integer.parseInt(portion4qty)) &&
+                                new Database(ShopActivity.this).fetch_product_quantity(portion5) >= (enteredQuantity * Integer.parseInt(portion5qty))) {
+
+                            String response = new Database(getBaseContext()).create_sale(new SaleModel(
+                                    product_id,
+                                    product_code,
+                                    name,
+                                    String.valueOf(final_price),
+                                    String.valueOf(enteredQuantity),
+                                    String.valueOf(sub_total),
+                                    sharedPreferences.getString("CUSTOMER_ID", ""),
+                                    String.valueOf(total_final_discount)));
+
+                            Toast.makeText(ShopActivity.this, response, Toast.LENGTH_LONG).show();
+                            populateSales(product);
+                        } else {
+                            Toast.makeText(ShopActivity.this, "Quantity entered exceeds stock", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                } else {
+                    Toast.makeText(ShopActivity.this, "Please move closer to the customer shop", Toast.LENGTH_SHORT).show();
+                }
+
+            } catch (Exception e) {
+                Log.e("ConfirmButton", "Error occurred during confirmation", e);
+                e.printStackTrace();
+            }
+
+            // Reset product_id and dismiss the bottom sheet dialog
+            product_id = null;
+            bottomSheetDialog.dismiss();
+        } else {
+            Log.d("ConfirmButton", "Validation failed");
+        }
+    }
+
 }
