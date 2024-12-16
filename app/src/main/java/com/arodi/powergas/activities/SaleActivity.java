@@ -1,6 +1,8 @@
 package com.arodi.powergas.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.widget.Toast;
@@ -42,5 +44,25 @@ public class SaleActivity extends AppCompatActivity {
         binding.back.setOnClickListener(view -> onBackPressed());
         binding.MakeSale.setOnClickListener(view -> startActivity(new Intent(SaleActivity.this, MakeSaleActivity.class)));
         binding.AddCustomer.setOnClickListener(view -> startActivity(new Intent(SaleActivity.this, CustomerActivity.class)));
+        binding.walkIn.setOnClickListener(view -> {
+            Intent intent = new Intent(SaleActivity.this, ShopActivity.class);
+            startActivity(intent);
+            // Save data in SharedPreferences
+            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("CustomerPrefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("SELECTED_CUSTOMER_NAME", "Walk In Customer");
+            editor.apply(); // Don't forget to apply the changes
+
+            // Start the new activity
+
+        });
+
+
+
+
     }
+
+
+
+
 }

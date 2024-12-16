@@ -33,6 +33,7 @@
         android:layout_gravity="center"/>
 
     <TextView
+        android:visibility="gone"
         android:id="@+id/company_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -47,12 +48,16 @@
 
     <!-- Customer Information -->
     <TextView
+        android:visibility="gone"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Customer: Walk-In Customer"
         android:textSize="16sp"/>
 
     <TextView
+        android:visibility="gone"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Date: 10/12/2024 18:33"
@@ -65,6 +70,7 @@
 
     <!-- Items Table -->
     <TextView
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Item                            Qty"
@@ -72,6 +78,8 @@
         android:textSize="16sp"/>
 
     <TextView
+        android:visibility="gone"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="SanDisk Cruzer Blade USB Flash Drive... 1.00"
@@ -84,24 +92,32 @@
 
     <!-- Signature and Thank You Message -->
     <TextView
+        android:visibility="gone"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Goods received by: ............................"
         android:textSize="16sp"/>
 
     <TextView
+        android:visibility="gone"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Date: ................"
         android:textSize="16sp"/>
 
     <TextView
+        android:visibility="gone"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Signature &amp; Rubber Stamp: .................."
         android:textSize="16sp"/>
 
     <TextView
+        android:visibility="gone"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="THANK YOU VERY MUCH! PLEASE COME AGAIN!"

@@ -99,7 +99,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:textAlignment="center"
-                            android:text="500"
+                            android:text="00"
                             android:id="@+id/TotalAmountPaid"
                             android:textSize="15sp"
                             android:letterSpacing="0.2"

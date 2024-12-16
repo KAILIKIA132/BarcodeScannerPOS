@@ -86,12 +86,24 @@ public class CustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         holder.next.setOnClickListener(view -> {
             if (position >= 0) {
-//            if (position == 0) {
-                // Create an intent to start ShopActivity
-//                Intent intent = new Intent(context, ShopActivityTwo.class);
-//                Intent intent = new Intent(context, ShopActivityThree.class);
-                Intent intent = new Intent(context, ShopActivity.class);
+                // Save customer details to SharedPreferences
+                SharedPreferences sharedPreferences = context.getSharedPreferences("CustomerPrefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("CUSTOMER_ID", model.getCustomer_id());
+                editor.putString("LAT", model.getLat());
+                editor.putString("LNG", model.getLng());
+                editor.putString("TOWN_ID", model.getTown_id());
+                editor.putString("SHOP_ID", model.getShop_id());
+                editor.putString("CUSTOMER_EMAIL", model.getEmail());
+                editor.putString("CUSTOMER_PHONE", model.getPhone());
+                editor.putString("SELECTED_CUSTOMER_NAME", model.getName());
+                editor.putString("SELECTED_CUSTOMER_GROUP_NAME", model.getCustomer_group_name());
+                editor.putString("SELECTED_CUSTOMER_COUNTY_NAME", model.getCounty_name());
+                editor.putString("SELECTED_CUSTOMER_GROUP_ID", model.getCustomer_group_id());
+                editor.apply(); // Apply changes to SharedPreferences
 
+
+                Intent intent = new Intent(context, ShopActivity.class);
                 // Put customer data in the intent as extras
                 intent.putExtra("CUSTOMER_ID", model.getCustomer_id());
                 intent.putExtra("LAT", model.getLat());
@@ -104,6 +116,9 @@ public class CustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 intent.putExtra("SELECTED_CUSTOMER_GROUP_NAME", model.getCustomer_group_name());
                 intent.putExtra("SELECTED_CUSTOMER_COUNTY_NAME", model.getCounty_name());
                 intent.putExtra("SELECTED_CUSTOMER_GROUP_ID", model.getCustomer_group_id());
+
+
+
 
                 // Log the data for debugging
                 Log.d("IntentExtras", "CUSTOMER_ID: " + model.getCustomer_id());

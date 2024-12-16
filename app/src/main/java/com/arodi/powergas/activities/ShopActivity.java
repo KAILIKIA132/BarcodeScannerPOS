@@ -393,9 +393,7 @@ float grand_totals;
                         Toast.makeText(ShopActivity.this, "An error occurred", Toast.LENGTH_LONG).show();
                     }
 
-
                 });
-
             }
         });
     }
@@ -757,102 +755,8 @@ float grand_totals;
         bottomSheetDialog.show();
     }
 
-    // Handle calculate button logic
-
-    private void handleCalculateClick() {
-        Log.d("CalculateButton", "Start.");
-
-        dialogBinding.calculate.setEnabled(false);
-
-        // Retrieve quantity from EditText
-        TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
-        if (quantityEditText != null) {
-            String quantityStr = quantityEditText.getText().toString();
-            int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
-
-            if (product != null) {
-                try {
-                    // Get the initial price of the product
-                    double initialPrice = Double.parseDouble(product.getPrice());
-
-                    // Calculate the total price based on quantity
-                    double total = initialPrice * quantity;
-
-                    grand_totals= (float) total;
-
-                    // Update the total amount in the TextView (display total price)
-                    if (dialogBinding.totalAmt != null) {
-                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "KES %.2f", total));
-                    } else {
-                        Log.e("CalculateButton", "Total TextView is null.");
-                    }
-
-                    // Update the UI to display the initial price (can display in a separate TextView if needed)
-//                    if (dialogBinding.initialPrice != null) {
-//                        dialogBinding.initialPrice.setText(String.format(Locale.getDefault(), "Initial: KES %.2f", initialPrice));
-//                    } else {
-//                        Log.e("CalculateButton", "Initial Price TextView is null.");
-//                    }
-
-                    // Optionally update the UI field for price (display the new calculated total price)
-                    if (dialogBinding.price != null) {
-                        dialogBinding.price.setText(String.format(Locale.getDefault(), "KES %.2f", total));
-                    } else {
-                        Log.e("CalculateButton", "Price TextView is null.");
-                    }
-
-                    // Optionally update the product price with the calculated total (if necessary)
-                    product.setPrice(String.format(Locale.getDefault(), "%.2f", total));
-                    Log.d("CalculateButton", "Updated product price with total: " + product.getPrice());
-
-                } catch (NumberFormatException e) {
-                    Log.e("CalculateButton", "Error parsing price", e);
-                }
-            } else {
-                Log.e("CalculateButton", "Product is null.");
-            }
-        } else {
-            Log.e("CalculateButton", "Quantity EditText is null.");
-        }
-
-        dialogBinding.calculate.setEnabled(true);
-    }
 
 
-//    private void handleCalculateClick() {
-//        Log.e("CalculateButton", "Start.");
-//
-//        dialogBinding.calculate.setEnabled(false);
-//
-//        // Retrieve quantity from EditText
-//        TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
-//        if (quantityEditText != null) {
-//            String quantityStr = quantityEditText.getText().toString();
-//            int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
-//
-//            if (product != null) {
-//                try {
-//                    double price = Double.parseDouble(product.getPrice());
-//                    double total = price * quantity;
-//
-//                    // Update total amount in TextView
-//                    if (dialogBinding.totalAmt != null) {
-//                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "KES%.2f", total));
-//                    } else {
-//                        Log.e("CalculateButton", "Total TextView is null.");
-//                    }
-//                } catch (NumberFormatException e) {
-//                    Log.e("CalculateButton", "Error parsing price", e);
-//                }
-//            } else {
-//                Log.e("CalculateButton", "Product is null.");
-//            }
-//        } else {
-//            Log.e("CalculateButton", "Quantity EditText is null.");
-//        }
-//
-//        dialogBinding.calculate.setEnabled(true);
-//    }
 
     // Camera initialization
     private void startCamera() {
@@ -921,134 +825,6 @@ float grand_totals;
     }
 
 
-//    private void getProductUsingCode() {
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(new Date());
-//        String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
-//        Log.d("getProduct", "Day of Week: " + dayOfWeek);
-//
-//        OkHttpClient client = new OkHttpClient().newBuilder()
-//                .connectTimeout(60, TimeUnit.SECONDS)
-//                .readTimeout(60, TimeUnit.SECONDS)
-//                .writeTimeout(60, TimeUnit.SECONDS)
-//                .build();
-//        Log.d("barcodeRead", barcodeRead);
-//
-//        Request request = new Request.Builder()
-////                .url(ROUTE_URL + "productsApi.php?code=" + barcodeRead)
-//                .url(ROUTE_URL + "productsApi.php?code=XATU034927")
-//                .method("GET", null)
-//                .build();
-//
-//        Log.d("Api_request", request.toString());
-//        Log.d("getProduct", "Sending request...");
-//
-//        client.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                runOnUiThread(() -> Log.e("getProduct", "Request failed: " + e.toString()));
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                Log.d("getProduct", "Response received: " + response.toString());
-//
-//                if (!response.isSuccessful()) {
-//                    Log.e("getProduct", "Unexpected response code: " + response.code());
-//                    throw new IOException("Unexpected code " + response);
-//                }
-//
-//                String responseBody = response.body().string();
-//                Log.d("getProduct", "Response Body: " + responseBody);
-//
-//                if (responseBody.isEmpty()) {
-//                    Log.w("getProduct", "Empty response body");
-//                    return;
-//                }
-//
-//                new Thread(() -> {
-//                    try {
-//                        Log.d("getProduct", "Processing response...");
-//                        JSONObject jsonResponse = new JSONObject(responseBody);
-//                        boolean status = jsonResponse.getBoolean("status");
-//
-//                        if (status) {
-//                            JSONObject dataObject = jsonResponse.getJSONObject("data");
-//                            product = new ProductCodeModel(
-//                                    dataObject.getString("id"),
-//                                    dataObject.getString("code"),
-//                                    dataObject.getString("type"),
-//                                    dataObject.getString("name"),
-//                                    dataObject.getString("price"),
-//                                    "no_image.png", // Assuming no image in API
-//                                    "", // Assuming no category name in API
-//                                    dataObject.getString("category_id"),
-//                                    dataObject.getString("quantity"),
-//                                    "0.0000" // Assuming no sales in API
-//                            );
-//
-//                            // Save product data in SharedPreferences
-//                            SharedPreferences sharedPreferences = getSharedPreferences("ProductPrefs", MODE_PRIVATE);
-//                            SharedPreferences.Editor editor = sharedPreferences.edit();
-//                            editor.putString("product_id", product.getId());
-//                            editor.putString("product_code", product.getCode());
-//                            editor.putString("product_type", product.getType());
-//                            editor.putString("product_name", product.getName());
-//                            editor.putString("product_price", product.getPrice());
-//                            editor.putString("product_image", product.getImage());
-//                            editor.putString("product_category", product.getCategory());
-//                            editor.putString("product_stock", product.getStock());
-//                            editor.putString("product_sales", product.getSales());
-//                            editor.apply();
-//
-//                            // Update UI on the main thread
-//                            runOnUiThread(() -> {
-//                                if (dialogBinding != null && dialogBinding.LoadProducts != null) {
-//                                    dialogBinding.LoadProducts.setText(product.getName());
-//                                } else {
-//                                    Log.e("AnalyzeImage", "Dialog binding or LoadProducts TextView is null.");
-//                                }
-//                                if (dialogBinding != null && dialogBinding.price != null) {
-//                                    dialogBinding.price.setText(product.getPrice());
-//                                } else {
-//                                    Log.e("AnalyzeImage", "Dialog binding or price TextView is null.");
-//                                }
-//
-//                                TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
-//                                if (quantityEditText != null) {
-//                                    String quantityStr = quantityEditText.getText().toString();
-//                                    int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
-//                                    double price = Double.parseDouble(product.getPrice());
-//                                    double total = price * quantity;
-//
-//                                    if (dialogBinding != null && dialogBinding.totalAmt != null) {
-//                                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "%.2f", total));
-//                                    } else {
-//                                        Log.e("CalculateTotal", "Total TextView is null.");
-//                                    }
-//                                } else {
-//                                    Log.e("AnalyzeImage", "Quantity EditText is null.");
-//                                }
-//
-//                                Log.d("getProduct", "UI updated successfully.");
-//                            });
-//                        } else {
-//                            String message = jsonResponse.getString("message");
-//                            JSONArray missingData = jsonResponse.getJSONArray("missing_data");
-//                            Log.w("getProduct", "Error: " + message);
-//                            Log.w("getProduct", "Missing data: " + missingData.toString());
-//                        }
-//                    } catch (Exception e) {
-//                        Log.e("getProduct", "Error processing response: ", e);
-//                    }
-//                }).start();
-//            }
-//
-//
-//        });
-//
-//        populateSales();
-//    }
 
 
     private void getProductUsingCode() {
@@ -1066,6 +842,7 @@ float grand_totals;
 
         Request request = new Request.Builder()
                 .url(ROUTE_URL + "productsApi.php?code=028292288845") // Example product code
+//                .url(ROUTE_URL + "productsApi.php?code="+barcodeRead) // Example product code
                 .method("GET", null)
                 .build();
 
@@ -1180,246 +957,7 @@ float grand_totals;
 
 
 
-//    private void getProductUsingCode() {
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(new Date());
-//        String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
-//        Log.d("getProduct", "Day of Week: " + dayOfWeek);
-//
-//        OkHttpClient client = new OkHttpClient().newBuilder()
-//                .connectTimeout(60, TimeUnit.SECONDS)
-//                .readTimeout(60, TimeUnit.SECONDS)
-//                .writeTimeout(60, TimeUnit.SECONDS)
-//                .build();
-//        Log.d("barcodeRead", barcodeRead);
-//
-//        Request request = new Request.Builder()
-////                .url(ROUTE_URL + "productsApi.php?code=" + barcodeRead)
-//                .url(ROUTE_URL + "productsApi.php?code=XATU034927")
-//                .method("GET", null)
-//                .build();
-//
-//        Log.d("Api_request", request.toString());
-//        Log.d("getProduct", "Sending request...");
-//
-//        client.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                runOnUiThread(() -> Log.e("getProduct", "Request failed: " + e.toString()));
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                Log.d("getProduct", "Response received: " + response.toString());
-//
-//                if (!response.isSuccessful()) {
-//                    Log.e("getProduct", "Unexpected response code: " + response.code());
-//                    throw new IOException("Unexpected code " + response);
-//                }
-//
-//                String responseBody = response.body().string();
-//                Log.d("getProduct", "Response Body: " + responseBody);
-//
-//                if (responseBody.isEmpty()) {
-//                    Log.w("getProduct", "Empty response body");
-//                    return;
-//                }
-//
-//                new Thread(() -> {
-//                    try {
-//                        Log.d("getProduct", "Processing response...");
-//                        JSONObject jsonResponse = new JSONObject(responseBody);
-//                        boolean status = jsonResponse.getBoolean("status");
-//
-//                        if (status) {
-//                            JSONObject dataObject = jsonResponse.getJSONObject("data");
-//                            product = new ProductCodeModel(
-//                                    dataObject.getString("id"),
-//                                    dataObject.getString("code"),
-//                                    dataObject.getString("type"),
-//                                    dataObject.getString("name"),
-//                                    dataObject.getString("price"),
-//                                    "no_image.png", // Assuming no image in API
-//                                    "", // Assuming no category name in API
-//                                    dataObject.getString("category_id"),
-//                                    dataObject.getString("quantity"),
-//                                    "0.0000" // Assuming no sales in API
-//                            );
-//
-//                            // Save product data in SharedPreferences
-//                            SharedPreferences sharedPreferences = getSharedPreferences("ProductPrefs", MODE_PRIVATE);
-//                            SharedPreferences.Editor editor = sharedPreferences.edit();
-//                            editor.putString("product_id", product.getId());
-//                            editor.putString("product_code", product.getCode());
-//                            editor.putString("product_type", product.getType());
-//                            editor.putString("product_name", product.getName());
-//                            editor.putString("product_price", product.getPrice());
-//                            editor.putString("product_image", product.getImage());
-//                            editor.putString("product_category", product.getCategory());
-//                            editor.putString("product_stock", product.getStock());
-//                            editor.putString("product_sales", product.getSales());
-//                            editor.apply();
-//
-//                            // Update UI on the main thread
-//                            runOnUiThread(() -> {
-//                                if (dialogBinding != null && dialogBinding.LoadProducts != null) {
-//                                    dialogBinding.LoadProducts.setText(product.getName());
-//                                } else {
-//                                    Log.e("AnalyzeImage", "Dialog binding or LoadProducts TextView is null.");
-//                                }
-//                                if (dialogBinding != null && dialogBinding.price != null) {
-//                                    dialogBinding.price.setText(product.getPrice());
-//                                } else {
-//                                    Log.e("AnalyzeImage", "Dialog binding or price TextView is null.");
-//                                }
-//
-//                                TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
-//                                if (quantityEditText != null) {
-//                                    String quantityStr = quantityEditText.getText().toString();
-//                                    int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
-//                                    double price = Double.parseDouble(product.getPrice());
-//                                    double total = price * quantity;
-//
-//                                    if (dialogBinding != null && dialogBinding.totalAmt != null) {
-//                                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "%.2f", total));
-//                                    } else {
-//                                        Log.e("CalculateTotal", "Total TextView is null.");
-//                                    }
-//                                } else {
-//                                    Log.e("AnalyzeImage", "Quantity EditText is null.");
-//                                }
-//
-//                                Log.d("getProduct", "UI updated successfully.");
-//                            });
-//                        } else {
-//                            String message = jsonResponse.getString("message");
-//                            JSONArray missingData = jsonResponse.getJSONArray("missing_data");
-//                            Log.w("getProduct", "Error: " + message);
-//                            Log.w("getProduct", "Missing data: " + missingData.toString());
-//                        }
-//                    } catch (Exception e) {
-//                        Log.e("getProduct", "Error processing response: ", e);
-//                    }
-//                }).start();
-//            }
-//
-//
-//        });
-//
-//        populateSales(product);
-//    }
-//    private void getProductUsingCode() {
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(new Date());
-//        String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
-//        Log.d("getProduct", "Day of Week: " + dayOfWeek);
-//
-//        OkHttpClient client = new OkHttpClient().newBuilder()
-//                .connectTimeout(60, TimeUnit.SECONDS)
-//                .readTimeout(60, TimeUnit.SECONDS)
-//                .writeTimeout(60, TimeUnit.SECONDS)
-//                .build();
-//        Log.d("barcodeRead", barcodeRead);
-//
-//        Request request = new Request.Builder()
-//                .url(ROUTE_URL + "productsApi.php?code=XATU034927") // Use dynamic barcode here
-//                .method("GET", null)
-//                .build();
-//
-//        Log.d("Api_request", request.toString());
-//        Log.d("getProduct", "Sending request...");
-//
-//        client.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                runOnUiThread(() -> Log.e("getProduct", "Request failed: " + e.toString()));
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                Log.d("getProduct", "Response received: " + response.toString());
-//
-//                if (!response.isSuccessful()) {
-//                    Log.e("getProduct", "Unexpected response code: " + response.code());
-//                    throw new IOException("Unexpected code " + response);
-//                }
-//
-//                String responseBody = response.body().string();
-//                Log.d("getProduct", "Response Body: " + responseBody);
-//
-//                if (responseBody.isEmpty()) {
-//                    Log.w("getProduct", "Empty response body");
-//                    return;
-//                }
-//
-//                new Thread(() -> {
-//                    try {
-//                        Log.d("getProduct", "Processing response...");
-//                        JSONObject jsonResponse = new JSONObject(responseBody);
-//                        boolean status = jsonResponse.getBoolean("status");
-//
-//                        if (status) {
-//                            JSONObject dataObject = jsonResponse.getJSONObject("data");
-//                            product = new ProductCodeModel(
-//                                    dataObject.getString("id"),
-//                                    dataObject.getString("code"),
-//                                    dataObject.getString("type"),
-//                                    dataObject.getString("name"),
-//                                    dataObject.getString("price"),
-//                                    "no_image.png", // Assuming no image in API
-//                                    "", // Assuming no category name in API
-//                                    dataObject.getString("category_id"),
-//                                    dataObject.getString("quantity"),
-//                                    dataObject.getString("sales") // Now directly from API response
-//                            );
-//
-//                            // Directly populate the sales data
-//                            populateSales(product);
-//
-//                            // Update UI on the main thread
-//                            runOnUiThread(() -> {
-//                                if (dialogBinding != null && dialogBinding.LoadProducts != null) {
-//                                    dialogBinding.LoadProducts.setText(product.getName());
-//                                } else {
-//                                    Log.e("AnalyzeImage", "Dialog binding or LoadProducts TextView is null.");
-//                                }
-//                                if (dialogBinding != null && dialogBinding.price != null) {
-//                                    dialogBinding.price.setText(product.getPrice());
-//                                } else {
-//                                    Log.e("AnalyzeImage", "Dialog binding or price TextView is null.");
-//                                }
-//
-//                                TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
-//                                if (quantityEditText != null) {
-//                                    String quantityStr = quantityEditText.getText().toString();
-//                                    int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
-//                                    double price = Double.parseDouble(product.getPrice());
-//                                    double total = price * quantity;
-//
-//                                    if (dialogBinding != null && dialogBinding.totalAmt != null) {
-//                                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "%.2f", total));
-//                                    } else {
-//                                        Log.e("CalculateTotal", "Total TextView is null.");
-//                                    }
-//                                } else {
-//                                    Log.e("AnalyzeImage", "Quantity EditText is null.");
-//                                }
-//
-//                                Log.d("getProduct", "UI updated successfully.");
-//                            });
-//                        } else {
-//                            String message = jsonResponse.getString("message");
-//                            JSONArray missingData = jsonResponse.getJSONArray("missing_data");
-//                            Log.w("getProduct", "Error: " + message);
-//                            Log.w("getProduct", "Missing data: " + missingData.toString());
-//                        }
-//                    } catch (Exception e) {
-//                        Log.e("getProduct", "Error processing response: ", e);
-//                    }
-//                }).start();
-//            }
-//        });
-//    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -1706,87 +1244,87 @@ float grand_totals;
 
 
 
-            dialogBinding.calculate.setOnClickListener(view -> {
-                dialogBinding.calculate.setEnabled(true);
-
-                Log.e("CalculateTotal", "Product is null.");
-                Log.e("CalculateTotal", "Product is null.");
-
-                // Retrieve the quantity from the EditText
-                TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
-
-                if (quantityEditText != null) {
-                    // Get the quantity entered by the user (default to "1" if empty)
-                    String quantityStr = quantityEditText.getText().toString();
-                    int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
-
-                    // Get the price of the product (assume it's a valid number)
-                    if (product != null) {
-                        try {
-                            double price = Double.parseDouble(product.getPrice());
-                            total = price * quantity;
-
-                            // Update the total amount in the TextView
-                            if (dialogBinding != null && dialogBinding.totalAmt != null) {
-                                dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "Total: $%.2f", total));
-                            } else {
-                                Log.e("CalculateTotal", "Total TextView is null.");
-                            }
-                        } catch (NumberFormatException e) {
-                            Log.e("CalculateTotal", "Error parsing price", e);
-                        }
-                    } else {
-                        Log.e("CalculateTotal", "Product is null.");
-                    }
-                } else {
-                    Log.e("CalculateTotal", "Quantity EditText is null.");
-                }
-
-
-
-
-
-            Location current = new Location(LocationManager.GPS_PROVIDER);
-            current.setLatitude(latitude);
-            current.setLongitude(longitude);
-
-            Location customer = new Location(LocationManager.GPS_PROVIDER);
-            customer.setLatitude(Double.parseDouble(sharedPreferences.getString("LAT", "")));
-            customer.setLongitude(Double.parseDouble(sharedPreferences.getString("LNG", "")));
-
-            if (validate()) {
-                try {
-                    if (Double.parseDouble(new DecimalFormat("0.00").format(current.distanceTo(customer) / 1000)) <= 500000) {
-                        int discount = 0;
-                        System.out.println("hchcjhc "+dialogBinding.Discount.getEditText().getText().toString().trim());
-                        if (!dialogBinding.Discount.getEditText().getText().toString().trim().equals("")) {
-                            discount = Integer.parseInt(dialogBinding.Discount.getEditText().getText().toString().trim());
-                        }
-
-                        int total_final_discount = discount * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
-
-                        if(positive_negative_discount.equals("0")){
-                            final_price = Integer.parseInt(price) + discount;
-                        }else{
-                            final_price = Integer.parseInt(price) - discount;
-                        }
-
-
-                        sub_total = final_price * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
-                        dialogBinding.totalAmt.setText(String.valueOf(sub_total));
-
-                    }
-                    else {
-                        Toast.makeText(ShopActivity.this, "Please move closer to the customer shop", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                product_id = null;
-                bottomSheetDialog.dismiss();
-            }
-
-        });
+//            dialogBinding.calculate.setOnClickListener(view -> {
+//                dialogBinding.calculate.setEnabled(true);
+//
+//                Log.e("CalculateTotal", "Product is null.");
+//                Log.e("CalculateTotal", "Product is null.");
+//
+//                // Retrieve the quantity from the EditText
+//                TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
+//
+//                if (quantityEditText != null) {
+//                    // Get the quantity entered by the user (default to "1" if empty)
+//                    String quantityStr = quantityEditText.getText().toString();
+//                    int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
+//
+//                    // Get the price of the product (assume it's a valid number)
+//                    if (product != null) {
+//                        try {
+//                            double price = Double.parseDouble(product.getPrice());
+//                            total = price * quantity;
+//
+//                            // Update the total amount in the TextView
+//                            if (dialogBinding != null && dialogBinding.totalAmt != null) {
+//                                dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "Total: $%.2f", total));
+//                            } else {
+//                                Log.e("CalculateTotal", "Total TextView is null.");
+//                            }
+//                        } catch (NumberFormatException e) {
+//                            Log.e("CalculateTotal", "Error parsing price", e);
+//                        }
+//                    } else {
+//                        Log.e("CalculateTotal", "Product is null.");
+//                    }
+//                } else {
+//                    Log.e("CalculateTotal", "Quantity EditText is null.");
+//                }
+//
+//
+//
+//
+//
+//            Location current = new Location(LocationManager.GPS_PROVIDER);
+//            current.setLatitude(latitude);
+//            current.setLongitude(longitude);
+//
+//            Location customer = new Location(LocationManager.GPS_PROVIDER);
+//            customer.setLatitude(Double.parseDouble(sharedPreferences.getString("LAT", "")));
+//            customer.setLongitude(Double.parseDouble(sharedPreferences.getString("LNG", "")));
+//
+//            if (validate()) {
+//                try {
+//                    if (Double.parseDouble(new DecimalFormat("0.00").format(current.distanceTo(customer) / 1000)) <= 500000) {
+//                        int discount = 0;
+//                        System.out.println("hchcjhc "+dialogBinding.Discount.getEditText().getText().toString().trim());
+//                        if (!dialogBinding.Discount.getEditText().getText().toString().trim().equals("")) {
+//                            discount = Integer.parseInt(dialogBinding.Discount.getEditText().getText().toString().trim());
+//                        }
+//
+//                        int total_final_discount = discount * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
+//
+//                        if(positive_negative_discount.equals("0")){
+//                            final_price = Integer.parseInt(price) + discount;
+//                        }else{
+//                            final_price = Integer.parseInt(price) - discount;
+//                        }
+//
+//
+//                        sub_total = final_price * Integer.parseInt(dialogBinding.Quantity.getEditText().getText().toString().trim());
+//                        dialogBinding.totalAmt.setText(String.valueOf(sub_total));
+//
+//                    }
+//                    else {
+//                        Toast.makeText(ShopActivity.this, "Please move closer to the customer shop", Toast.LENGTH_SHORT).show();
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                product_id = null;
+//                bottomSheetDialog.dismiss();
+//            }
+//
+//        });
         bottomSheetDialog.show();
     }
 
@@ -1848,6 +1386,8 @@ float grand_totals;
                     jsonObject.put("discount", "0"); // Example: Hardcoded discount
                     jsonObject.put("total", grand_totals);  // Example: Using the total payment
                     jsonArray.put(jsonObject);
+                    Log.d("ProductData", "JSON Object: " + jsonObject.toString());
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -1856,17 +1396,19 @@ float grand_totals;
                 Log.d("ProductDetails", "Product Name: " + product.getName());
                 Log.d("ProductDetails", "Product Code: " + product.getCode());
                 Log.d("ProductDetails", "Product Price: " + product.getPrice());
+                Log.d("ProductDetails", "Product Price: " + product.getPrice());
                 Log.d("ProductDetails", "Product Category: " + product.getCategory());
+                Log.d("ProductDetails", "Product Type: " + product.getType());
+                Log.d("ProductDetails", "Product Initial: " + product.getInitialPrice());
 
+                Log.d("grand_total12", String.valueOf(grand_totals));
 
                 // Passing the ProductCodeModel object to the PaymentActivity
                 Intent intent = new Intent(ShopActivity.this, PaymentActivity.class);
                 intent.putExtra("product_data", product);  // 'product' is the ProductCodeModel object passed as parameter
-                intent.putExtra("grand_totals", grand_totals);  // Pass the grand_totals value
+                intent.putExtra("grand_unit", product.getType());  // Pass the grand_totals value
+                intent.putExtra("grand_totals", String.valueOf(grand_totals));  // Pass the grand_totals value
                 startActivity(intent);
-
-
-
                 bottomSheetDialog.dismiss();
             }
         });
@@ -2161,102 +1703,148 @@ float grand_totals;
         });
     }
 
+    private void handleCalculateClick() {
+        Log.d("CalculateButton", "Start.");
 
-//    public void populateSales() {
-//        SharedPreferences sharedPreferences = getSharedPreferences("ProductPrefs", MODE_PRIVATE);
+        dialogBinding.calculate.setEnabled(false);
+
+        // Retrieve quantity from EditText
+        TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
+        if (quantityEditText != null) {
+            String quantityStr = quantityEditText.getText().toString();
+            int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
+
+
+
+// Save the quantity to shared preferences
+            SharedPreferences sharedPreferencesquantity = getSharedPreferences("quantityPrefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferencesquantity.edit();
+            editor.putInt("quantity", quantity); // Save the quantity
+            editor.apply(); // Apply changes
+
+            Log.d("CalculateButton", "Quantity saved: " + quantity);
+
+            if (product != null) {
+                try {
+                    // Get the initial price of the product
+                    double initialPrice = Double.parseDouble(product.getPrice());
+
+                    // Calculate the total price based on quantity
+                    double total = initialPrice * quantity;
+
+                    grand_totals = (float) total;
+
+                    // Save the total to shared preferences (same shared preferences file for better organization)
+                    SharedPreferences sharedPreferences = getSharedPreferences("paymenttotalPrefs", MODE_PRIVATE);
+                    SharedPreferences.Editor totalEditor = sharedPreferences.edit();
+                    totalEditor.putFloat("total", (float) total); // Save the total as a float
+                    totalEditor.apply(); // Apply changes
+                    // Save the total to shared preferences
+//                    editor.putFloat("total", (float) total); // Save the total as a float
+//                    editor.apply(); // Apply changes
+
+                    Log.d("CalculateButton", "Total saved: " + total);
+
+                    // Update the total amount in the TextView (display total price)
+                    if (dialogBinding.totalAmt != null) {
+                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "KES %.2f", total));
+                    } else {
+                        Log.e("CalculateButton", "Total TextView is null.");
+                    }
+
+                    // Optionally update the UI field for price (display the new calculated total price)
+                    if (dialogBinding.price != null) {
+                        dialogBinding.price.setText(String.format(Locale.getDefault(), "KES %.2f", total));
+                    } else {
+                        Log.e("CalculateButton", "Price TextView is null.");
+                    }
+
+                    // Optionally update the product price with the calculated total (if necessary)
+                    product.setPrice(String.format(Locale.getDefault(), "%.2f", total));
+                    Log.d("CalculateButton", "Updated product price with total: " + product.getPrice());
+
+                } catch (NumberFormatException e) {
+                    Log.e("CalculateButton", "Error parsing price", e);
+                }
+            } else {
+                Log.e("CalculateButton", "Product is null.");
+            }
+        } else {
+            Log.e("CalculateButton", "Quantity EditText is null.");
+        }
+
+        dialogBinding.calculate.setEnabled(true);
+    }
+
+//    private void handleCalculateClick() {
+//        Log.d("CalculateButton", "Start.");
 //
-//        // Retrieve the product data from SharedPreferences
-//        String saleId = sharedPreferences.getString("sale_id", "");  // Assuming sale ID is stored
-//        String productId = sharedPreferences.getString("product_id", "");
-//        String productCode = sharedPreferences.getString("product_code", "");
-//        String productType = sharedPreferences.getString("product_type", "");
-//        String productName = sharedPreferences.getString("product_name", "");
-//        String productPrice = sharedPreferences.getString("product_price", "");
-//        String productImage = sharedPreferences.getString("product_image", "no_image.png");
-//        String productCategory = sharedPreferences.getString("product_category", "");
-//        String productCategoryId = sharedPreferences.getString("product_category_id", "");
-//        String productStock = sharedPreferences.getString("product_stock", "");
-//        String productSales = sharedPreferences.getString("product_sales", "0.0000");
-//        String discount = sharedPreferences.getString("discount", "0");  // Assuming discount is stored
-//        String total = sharedPreferences.getString("total", "0");  // Assuming total is stored
+//        dialogBinding.calculate.setEnabled(false);
 //
-//        // Optionally, log the retrieved product data
-//        Log.d("populateSales", "Product ID: " + productId);
-//        Log.d("populateSales", "Product Code: " + productCode);
-//        Log.d("populateSales", "Product Name: " + productName);
-//        Log.d("populateSales", "Product Type: " + productType);
-//        Log.d("populateSales", "Product Price: " + productPrice);
-//        Log.d("populateSales", "Product Category: " + productCategory);
-//        Log.d("populateSales", "Product productCategoryId: " + productCategoryId);
-//        Log.d("populateSales", "Product ProductStock: " + productStock);
-//        Log.d("populateSales", "Product Product Sales: " + productSales);
-//        Log.d("populateSales", "Product Discount: " + discount);
-//        Log.d("populateSales", "Product Total: " + total);
+//        // Retrieve quantity from EditText
+//        TextInputEditText quantityEditText = (TextInputEditText) dialogBinding.Quantity.getEditText();
+//        if (quantityEditText != null) {
+//            String quantityStr = quantityEditText.getText().toString();
+//            int quantity = quantityStr.isEmpty() ? 1 : Integer.parseInt(quantityStr);
+//// Save the quantity to shared preferences
+//            SharedPreferences sharedPreferences = getSharedPreferences("quantityPrefs", MODE_PRIVATE);
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//            editor.putInt("quantity", quantity); // Save the quantity
+//            editor.apply(); // Apply changes
 //
-//        // Clear the saleModel list
-//        saleModel.clear();
+//            Log.d("CalculateButton", "Quantity saved: " + quantity);
 //
-//        // Create a new SaleModelCode object with the retrieved data
-//        SaleModelCode sale = new SaleModelCode(
-//                saleId,
-//                productId,
-//                productName,
-//                productCode,
-//                productType,
-//                productCategory,
-//                productCategoryId,
-//                productPrice,
-//                productImage,
-//                productStock,
-//                productSales,
-//                discount,
-//                total
-//        );
+//            if (product != null) {
+//                try {
+//                    // Get the initial price of the product
+//                    double initialPrice = Double.parseDouble(product.getPrice());
 //
-//        // Add the sale object to the saleModel list
-//        saleModel.add(sale);
+//                    // Calculate the total price based on quantity
+//                    double total = initialPrice * quantity;
 //
-//        // Initialize and set the SaleAdapter
-//        saleAdapter = new SaleAdapterCode(ShopActivity.this, saleModel, this);  // Use the correct adapter name
-//        saleAdapter.notifyDataSetChanged();
-//        binding.RecyclerView.setAdapter(saleAdapter);
+//                    grand_totals= (float) total;
 //
-//        // Calculate the total payment and discount
-//        total_payment = 0;
-//        total_discount = 0;
+//                    // Update the total amount in the TextView (display total price)
+//                    if (dialogBinding.totalAmt != null) {
+//                        dialogBinding.totalAmt.setText(String.format(Locale.getDefault(), "KES %.2f", total));
+//                    } else {
+//                        Log.e("CalculateButton", "Total TextView is null.");
+//                    }
 //
-//        for (SaleModelCode model : saleModel) {
-//            total_payment += Integer.parseInt(model.getTotal());
-//            total_discount += Integer.parseInt(model.getDiscount());
-//        }
+//                    // Update the UI to display the initial price (can display in a separate TextView if needed)
+////                    if (dialogBinding.initialPrice != null) {
+////                        dialogBinding.initialPrice.setText(String.format(Locale.getDefault(), "Initial: KES %.2f", initialPrice));
+////                    } else {
+////                        Log.e("CalculateButton", "Initial Price TextView is null.");
+////                    }
 //
-//        // Update the UI with the totals
-//        binding.TotalDue.setText("Kshs " + total_payment);
-//        binding.TotalAmount.setText("Kshs " + total_payment);
+//                    // Optionally update the UI field for price (display the new calculated total price)
+//                    if (dialogBinding.price != null) {
+//                        dialogBinding.price.setText(String.format(Locale.getDefault(), "KES %.2f", total));
+//                    } else {
+//                        Log.e("CalculateButton", "Price TextView is null.");
+//                    }
 //
-//        // Update the UI based on whether there are items in the saleModel list
-//        if (saleModel.isEmpty()) {
-//            binding.Head.setVisibility(View.GONE);
-//            binding.Lay.setVisibility(View.VISIBLE);
-//            binding.StatusCard.setVisibility(View.GONE);
-//            binding.TrolleyItems.setVisibility(View.GONE);
+//                    // Optionally update the product price with the calculated total (if necessary)
+//                    product.setPrice(String.format(Locale.getDefault(), "%.2f", total));
+//                    Log.d("CalculateButton", "Updated product price with total: " + product.getPrice());
 //
-//            binding.NotAttending.setVisibility(View.VISIBLE);
-//            binding.NotAttending.setText("Not attending to " + sharedPreferences.getString("SELECTED_CUSTOMER_NAME", "") + "?");
+//                } catch (NumberFormatException e) {
+//                    Log.e("CalculateButton", "Error parsing price", e);
+//                }
+//            } else {
+//                Log.e("CalculateButton", "Product is null.");
+//            }
 //        } else {
-//            binding.Head.setVisibility(View.VISIBLE);
-//            binding.Lay.setVisibility(View.GONE);
-//            binding.StatusCard.setVisibility(View.VISIBLE);
-//            binding.TrolleyItems.setVisibility(View.VISIBLE);
-//
-//            binding.NotAttending.setChecked(false);
-//            binding.NotAttending.setVisibility(View.GONE);
+//            Log.e("CalculateButton", "Quantity EditText is null.");
 //        }
 //
-//        // Optionally, update any additional UI elements with the retrieved product data if needed
-//        // For example, binding.ProductName.setText(productName);
-//        // Or binding.ProductPrice.setText("Kshs " + productPrice);
+//        dialogBinding.calculate.setEnabled(true);
 //    }
+
+
+
+
 
     public void populateSales(ProductCodeModel product) {
         // Clear the saleModel list

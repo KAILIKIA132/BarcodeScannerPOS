@@ -88,18 +88,66 @@ public class PaymentActivity extends AppCompatActivity {
 
     String fmt5 = "%6s %6s %6s %6s";
     String fmt2 = "%6s %6s %6s\n";
-
+    String customerId,customerName,customerPhone,customerEmail;
+    int quantity;
     Bitmap bitmap;
     String grandTotals;
     public UUID applicationUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
+    String grandUnit;
+    float total;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
         binding = DataBindingUtil.setContentView(this, R.layout.activity_payment);
+        SharedPreferences sharedPreferences = getSharedPreferences("CustomerPrefs", Context.MODE_PRIVATE);
+         customerId = sharedPreferences.getString("CUSTOMER_ID", "");
+         customerName = sharedPreferences.getString("SELECTED_CUSTOMER_NAME", "");
+         customerPhone = sharedPreferences.getString("CUSTOMER_PHONE", "");
+         customerEmail = sharedPreferences.getString("CUSTOMER_EMAIL", "");
 
-        grandTotals = String.valueOf(getIntent().getDoubleExtra("grand_totals", 0.0));
+        // Retrieve the quantity from shared preferences
+        SharedPreferences quantitysharedPreferences = getSharedPreferences("quantityPrefs", MODE_PRIVATE);
+        quantity = quantitysharedPreferences.getInt("quantity", 1); // Default to 1 if not found
+
+
+        // Retrieve the total from shared preferences
+        SharedPreferences sharedPreferencesTotals = getSharedPreferences("paymenttotalPrefs", MODE_PRIVATE);
+        total = sharedPreferencesTotals.getFloat("total", 0.0f); // Default to 0.0 if not found
+        Log.d("SavedTotal", "Total retrieved from shared preferences: " + total);
+
+        // Log the retrieved total
+        Log.d("PaymentActivity", "Retrieved total: " + total);
+        Log.d("PaymentActivity", "Retrieved quantity: " + quantity);
+// ... Retrieve other details as needed
+// Use the retrieved data
+        Log.d("PaymentActivity", "Customer ID: " + customerId);
+        Log.d("PaymentActivity", "Customer Name: " + customerName);
+        Log.d("PaymentActivity", "Customer Phone: " + customerPhone);
+        Log.d("PaymentActivity", "Customer Email: " + customerEmail);
+
+        // Retrieve the Intent
+        Intent intent1 = getIntent();
+
+        // Extract the product data
+        product = (ProductCodeModel) intent1.getSerializableExtra("product_data");
+
+
+        // Extract the other extras
+        grandUnit = intent1.getStringExtra("grand_unit");
+        grandTotals = intent1.getStringExtra("grand_totals");
+
+        Log.d("Grandunit1",grandUnit);
+        Log.d("Gradndt1",grandTotals);
+
+
+        // Log or use the data as needed
+        if (product != null) {
+            Log.d("PaymentActivity", "Product Data: " + product.toString());
+        }
+        Log.d("PaymentActivity", "Grand Unit: " + grandUnit);
+        Log.d("PaymentActivity", "Grand Totals: " + grandTotals);
+
 Log.d("Grand_Totals",grandTotals);
         // Retrieve the ProductCodeModel object
         product = getIntent().getParcelableExtra("product_data");
@@ -111,17 +159,25 @@ Log.d("Grand_Totals",grandTotals);
 
             // Now set the price
 
-            String price = product.getPrice();
+            String price = product.getType();
             Log.d("PaymentActivity1", "Product ID: " + product.getId());
             Log.d("PaymentActivity1", "Product Name: " + product.getName());
             Log.d("PaymentActivity1", "Product Code: " + product.getCode());
             Log.d("PaymentActivity1", "Product Price: " + product.getPrice());
+            binding.TotalAmountPaid.setText(String.format(Locale.getDefault(), "KES %.2f", total));
 
-            // Set the price in the TotalAmountPaid TextView
-            binding.TotalAmountPaid.setText(price);
+//            // Set the price in the TotalAmountPaid TextView
+//            grandTotals = getIntent().getStringExtra("grand_unit");
+//            if (grandTotals != null) {
+//                Log.d("PaymentActivity23",grandTotals );
+//
+//                binding.TotalAmountPaid.setText(grandTotals);
+//            } else {
+//                Log.d("PaymentActivity", "grandUnit is null when setting TotalAmountPaid.");
+//            }
 //            binding.TotalAmountPaid.invalidate(grandTotals);  // Force UI update if needed
             // Set the price in the TotalAmountPaid TextView
-            binding.TotalAmountPaid.setText(grandTotals);
+//            binding.TotalAmountPaid.setText(grandUnit);
         }
         else {
             Toast.makeText(this, "No product data received", Toast.LENGTH_SHORT).show();
@@ -134,7 +190,7 @@ Log.d("Grand_Totals",grandTotals);
         preferences = getSharedPreferences("PAYMENT_SELECTED", Context.MODE_PRIVATE);
         if (preferences.contains("PAYMENT_AMOUNT")) {
 
-            binding.TotalAmountPaid.setText(preferences.getString("PAYMENT_AMOUNT", ""));
+            binding.TotalAmountPaid.setText(grandTotals);
 
             try {
                 JSONArray jsonArray = new JSONArray(preferences.getString("PAYMENT_METHOD", ""));
@@ -603,8 +659,8 @@ Log.d("Grand_Totals",grandTotals);
             JSONObject sale = new JSONObject();
             sale.put("date", currentDate);
             sale.put("reference_no", "REF123456");//what is reference_no
-            sale.put("customer_id", 1);
-            sale.put("customer", "John Doe");
+            sale.put("customer_id", customerId);
+            sale.put("customer", customerName);
             sale.put("biller_id", 1);
             sale.put("biller", "Store Name");
             sale.put("chef_id", 2);
@@ -614,7 +670,7 @@ Log.d("Grand_Totals",grandTotals);
             sale.put("warehouse_id", 1);
             sale.put("note", "Customer requested gift wrapping.");
             sale.put("staff_note", "Handle with care.");
-            sale.put("total", grandTotals);
+            sale.put("total", total);
             sale.put("product_discount", 10.00);
             sale.put("order_discount_id", JSONObject.NULL);
             sale.put("order_discount", 5.00);
@@ -640,14 +696,14 @@ Log.d("Grand_Totals",grandTotals);
             product1.put("option_id", JSONObject.NULL);
             product1.put("net_unit_price", product.getPrice());
             product1.put("unit_price", product.getPrice());
-            product1.put("quantity", 1);
+            product1.put("quantity", quantity);
             product1.put("warehouse_id", 1);
             product1.put("item_tax", 8.00);
             product1.put("tax_rate_id", 1);
             product1.put("tax", 2.00);
             product1.put("discount", 5.00);
             product1.put("item_discount", 3.00);
-            product1.put("subtotal", grandTotals);
+            product1.put("subtotal", total);
             product1.put("serial_no", "SN123456");
             product1.put("real_unit_price", 30.00);
             products.put(product1);
@@ -725,6 +781,8 @@ Log.d("Grand_Totals",grandTotals);
                             Intent intent = new Intent(PaymentActivity.this, ReceiptActivity.class);
                             intent.putExtra("product_data", product);  // Ensure 'product' implements Serializable/Parcelable
                             intent.putExtra("grand_totals", grandTotals);  // Pass the grand_totals value
+                            intent.putExtra("grand_totals", grandUnit);  // Pass the grand_totals value
+                            intent.putExtra("customer_name", customerName);  // Pass the grand_totals value
                             startActivity(intent);
                             dialog.dismiss(); // Dismiss dialog safely
 
@@ -751,143 +809,6 @@ Log.d("Grand_Totals",grandTotals);
 
 
 
-//    public void submitSale(String signature, String cheque_image) {
-//        OkHttpClient client = new OkHttpClient().newBuilder()
-//                .connectTimeout(60, TimeUnit.SECONDS)
-//                .readTimeout(60, TimeUnit.SECONDS)
-//                .writeTimeout(60, TimeUnit.SECONDS)
-//                .build();
-//
-//        // Construct the sale JSON object
-//        JSONObject saleJson = new JSONObject();
-//        try {
-//            saleJson.put("date", "2024-09-30");
-//            saleJson.put("reference_no", "REF123456");
-//            saleJson.put("customer_id", 1);
-//            saleJson.put("customer", "John Doe");
-//            saleJson.put("biller_id", 1);
-//            saleJson.put("biller", "Store Name");
-//            saleJson.put("chef_id", 2);
-//            saleJson.put("chef", "Chef Name");
-//            saleJson.put("cashier_id", 3);
-//            saleJson.put("cashier", "Cashier Name");
-//            saleJson.put("warehouse_id", 1);
-//            saleJson.put("note", "Customer requested gift wrapping.");
-//            saleJson.put("staff_note", "Handle with care.");
-//            saleJson.put("total", 100.00);
-//            saleJson.put("product_discount", 10.00);
-//            saleJson.put("order_discount_id", JSONObject.NULL);
-//            saleJson.put("order_discount", 5.00);
-//            saleJson.put("total_discount", 15.00);
-//            saleJson.put("product_tax", 16.00);
-//            saleJson.put("order_tax_id", JSONObject.NULL);
-//            saleJson.put("order_tax", 2.00);
-//            saleJson.put("total_tax", 18.00);
-//            saleJson.put("shipping", 5.00);
-//            saleJson.put("grand_total", 115.00);
-//            saleJson.put("total_items", 3);
-//            saleJson.put("sale_status", "completed");
-//            saleJson.put("payment_status", "paid");
-//            saleJson.put("payment_term", "Immediate");
-//
-//            // Construct the products array
-//            JSONArray productsArray = new JSONArray();
-//            JSONObject product = new JSONObject();
-//            product.put("product_id", 1);
-//            product.put("product_code", "PROD001");
-//            product.put("product_name", "Product Name 1");
-//            product.put("product_type", "type1");
-//            product.put("option_id", JSONObject.NULL);
-//            product.put("net_unit_price", 30.00);
-//            product.put("unit_price", 35.00);
-//            product.put("quantity", 2);
-//            product.put("warehouse_id", 1);
-//            product.put("item_tax", 8.00);
-//            product.put("tax_rate_id", 1);
-//            product.put("tax", 2.00);
-//            product.put("discount", 5.00);
-//            product.put("item_discount", 3.00);
-//            product.put("subtotal", 60.00);
-//            product.put("serial_no", "SN123456");
-//            product.put("real_unit_price", 30.00);
-//            productsArray.put(product);
-//
-//            // Add products array to sale JSON
-//            saleJson.put("products", productsArray);
-//
-//            // Construct the payment array
-//            JSONArray paymentsArray = new JSONArray();
-//            JSONObject payment = new JSONObject();
-//            payment.put("date", "2024-09-30");
-//            payment.put("reference_no", "PAY123456");
-//            payment.put("amount", 115.00);
-//            payment.put("paid_by", "credit_card");
-//            payment.put("cheque_no", JSONObject.NULL);
-//            payment.put("cc_no", "4111111111111111");
-//            payment.put("cc_holder", "John Doe");
-//            payment.put("cc_month", "12");
-//            payment.put("cc_year", "2025");
-//            payment.put("cc_type", "Visa");
-//            payment.put("cc_cvv2", "123");
-//            payment.put("created_by", "admin");
-//            payment.put("type", "sale");
-//            payment.put("note", "Paid in full");
-//            payment.put("pos_paid", 115.00);
-//            payment.put("pos_balance", 0.00);
-//            paymentsArray.put(payment);
-//
-//            // Add payment array to sale JSON
-//            saleJson.put("payment", paymentsArray);
-//
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        RequestBody requestBody = new MultipartBody.Builder()
-//                .setType(MultipartBody.FORM)
-//                .addFormDataPart("json", saleJson.toString())  // Add the JSON payload
-//                .addFormDataPart("image", cheque_image)
-//                .addFormDataPart("signature", signature)
-//                .build();
-//
-//        Request request = new Request.Builder()
-//                .url(BaseURL.ROUTE_URL + "productsApi.php")
-//                .post(requestBody)
-//                .build();
-//
-//        client.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                runOnUiThread(() -> {
-//                    dialog.dismiss();
-//                    Toast.makeText(PaymentActivity.this, "No Connection to host", Toast.LENGTH_SHORT).show();
-//                    System.out.println("error: " + e.toString());
-//                });
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) {
-//                runOnUiThread(() -> {
-//                    try {
-//                        JSONObject responseJson = new JSONObject(response.body().string());
-//                        if (responseJson.getString("success").equals("1")) {
-//                            dialog.dismiss();
-//                            // Handle sale added successfully
-//                            Toast.makeText(PaymentActivity.this, "SALE ADDED SUCCESSFULLY", Toast.LENGTH_LONG).show();
-//                        } else {
-//                            dialog.dismiss();
-//                            Toast.makeText(PaymentActivity.this, responseJson.getString("message"), Toast.LENGTH_LONG).show();
-//
-//                        }
-//                    } catch (Exception e) {
-//                        dialog.dismiss();
-//                        Toast.makeText(PaymentActivity.this, "An error occurred", Toast.LENGTH_LONG).show();
-//                        e.printStackTrace();
-//                    }
-//                });
-//            }
-//        });
-//    }
 
     public void goBackToSales() {
         SharedPreferences sharedPreferences = getSharedPreferences("CUSTOMER_SHOPPING_DATA", Context.MODE_PRIVATE);
@@ -1184,8 +1105,8 @@ Log.d("Grand_Totals",grandTotals);
             }
         }
 
-        if (ParseDouble(binding.TotalAmountPaid.getText().toString().trim()) != 0) {
-            Toast.makeText(PaymentActivity.this, "Make sure total amount is KSH " + preferences.getString("PAYMENT_AMOUNT", ""), Toast.LENGTH_SHORT).show();
+        if (ParseDouble(binding.TotalAmountPaid.getText().toString().trim()) ==0) {
+            Toast.makeText(PaymentActivity.this, "Make sure total amount is KSH " + grandTotals, Toast.LENGTH_SHORT).show();
             valid = false;
         }
 

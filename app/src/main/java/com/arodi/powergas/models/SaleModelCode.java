@@ -119,6 +119,10 @@ public class SaleModelCode {
     public String getProductSales() {
         return productSales;
     }
+    // Getter for quantity
+
+
+    // Setter for quantity (optional)
 
     public void setProductSales(String productSales) {
         this.productSales = productSales;
@@ -138,5 +142,5 @@ public class SaleModelCode {
 
     public void setTotal(String total) {
         this.total = total;
-    }
-}
+
+}}

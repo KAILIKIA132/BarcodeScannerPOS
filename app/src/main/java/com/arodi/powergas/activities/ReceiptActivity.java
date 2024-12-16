@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import java.util.Random;
 
 public class ReceiptActivity extends AppCompatActivity {
     ActivityPaymentBinding binding;
@@ -56,10 +57,11 @@ public class ReceiptActivity extends AppCompatActivity {
     BluetoothDevice mBluetoothDevice;
     public BluetoothSocket mBluetoothSocket;
     public ProgressDialog progressDialog;
+    String productCode,productName,price;
 
     String StringPaymentArray;
     String StringProductArray;
-
+int quantity;
     String fmt5 = "%6s %6s %6s %6s";
     String fmt2 = "%6s %6s %6s\n";
 //    String[] deviceNames;
@@ -68,18 +70,43 @@ public class ReceiptActivity extends AppCompatActivity {
     String[] deviceAddresses = {};  // Initialize deviceAddresses as an empty array
 
     public UUID applicationUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-double grandTotals;
+String grandTotals,customerName;
+float total;
+String grandUnit;
     private static final int BLUETOOTH_PERMISSION_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.receipt);
-        grandTotals = getIntent().getDoubleExtra("grand_totals", 0.0);
+        Intent intent1 = getIntent();
 
+
+        product = getIntent().getParcelableExtra("product_data");
+        // Retrieve the quantity from shared preferences
+        SharedPreferences quantitysharedPreferences = getSharedPreferences("quantityPrefs", MODE_PRIVATE);
+        quantity = quantitysharedPreferences.getInt("quantity", 1); // Default to 1 if not found
+
+        SharedPreferences sharedPreferencesTotals = getSharedPreferences("paymenttotalPrefs", MODE_PRIVATE);
+        total = sharedPreferencesTotals.getFloat("total", 0.0f); // Default to 0.0 if not found
+
+        Log.d("PaymentActivity", "Retrieved quantity: " + quantity);
+        if (product != null) {
+            // Use product data
+            productCode = product.getCode();
+             productName = product.getName();
+           price = product.getPrice();
+        } else {
+            // Handle null case
+            Toast.makeText(this, "No product data found!", Toast.LENGTH_SHORT).show();
+        }
+
+//        grandTotals = getIntent().getDoubleExtra("grand_totals", 0.0);
+        grandUnit = intent1.getStringExtra("grand_unit");
+        grandTotals = intent1.getStringExtra("grand_totals");
+        customerName = intent1.getStringExtra("customer_name");
         // Initialize SharedPreferences
         preferences = getSharedPreferences("YourPreferencesName", MODE_PRIVATE);
-
         // Initialize Bluetooth Adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -154,43 +181,46 @@ double grandTotals;
                     runOnUiThread(() -> Toast.makeText(ReceiptActivity.this, "Bluetooth socket is not connected", Toast.LENGTH_SHORT).show());
                     return;
                 }
-
                 OutputStream outputStream = mBluetoothSocket.getOutputStream();
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                // Generate a random receipt number (4-digit example)
+                Random random = new Random();
+                int receiptNumber = 1000 + random.nextInt(9000); // Generates a number between 1000 and 9999
 
                 // Hardcoded values for testing
                 String userPlateNo = "ABC123"; // Hardcoded plate number
-                String customerName = "John Doe"; // Hardcoded customer name
-                String shopName = "Power Gas Shop"; // Hardcoded shop name
-                String totalAmount = "1000.00"; // Hardcoded total amount
+                String shopName = "Summit Mobile"; // Hardcoded shop name
+                String totalAmount = grandUnit; // Hardcoded total amount
                 String paymentMethod = "Cash"; // Hardcoded payment method
-                String paymentAmount = "1000.00"; // Hardcoded payment amount
+                String paymentAmount = grandTotals; // Hardcoded payment amount
                 String paymentStatus = "Paid"; // Hardcoded payment status
 
-// Date format for receipt
 
 // Constructing the BILL string
                 String BILL = "RECEIPT\nSUMMIT MOBILE INVESTMENT LIMITED\n62639-00200 Nairobi 00200 Kenya\nTEL NO: 0748911778\nEmail: summitemobileinvestmentlimited@gmail.com"
-                        + "\nRECEIPT NO: " + "1" + "\nDATE: " + dateFormat.format(new Date()) + "\n";
+                        + "\nRECEIPT NO: " +  receiptNumber + "\nDATE: " + dateFormat.format(new Date()) + "\n";
 
                 BILL += "================================\nCUSTOMER NAME: " + customerName + "\n\n";
 
 // Format for item list header
-                String fmt5 = "%-20s%-10s%-10s%-10s"; // Format for the item list, adjust as necessary
+//                String fmt5 = "%-20s%-10s%-10s%-10s"; // Format for the item list, adjust as necessary
+                String fmt5 = "%-8s %-4s %-8s %-8s";
+
 
 // Assuming StringProductArray contains the list of items in the receipt
-                String StringProductArray = "Item 1    2      500.00    1000.00\nItem 2    1      500.00    500.00"; // Example hardcoded product data
+                String StringProductArray = productCode+  "  " +   quantity+  "   " +   grandTotals +   "    "   + total + "";
+//                        +\nItem 2    1      500.00    500.00";
 
 // Add item list to the BILL
-                BILL += String.format(fmt5, "Item", "Qty", "Price", "Total") + "\n--------------------------------\n";
-                BILL += StringProductArray + "\nTOTAL: " + grandTotals + "\n";
+                BILL += String.format(fmt5, "Item", "Qty", "Price", "Total") + "\n--------------------------------\n\n";
+                BILL += StringProductArray + "\nTOTAL: " + total + "\n";
                 BILL += "================================\nPayments:\n";
 
 // Format for payment list header
-                String fmt2 = "%-20s%-10s%-10s"; // Format for the payment list, adjust as necessary
+                String fmt2 = "%-10s%-8s%-10s"; // Format for the payment list, adjust as necessary
 
 // Assuming StringPaymentArray contains the payment details
-                String StringPaymentArray = paymentMethod + "    " + paymentAmount + "    " + paymentStatus; // Example hardcoded payment data
+                String StringPaymentArray = paymentMethod + "    " + total + "    " + paymentStatus; // Example hardcoded payment data
 
 // Add payment details to the BILL
                 BILL += String.format(fmt2, "Method", "Amount", "Status") + "\n--------------------------------\n";
